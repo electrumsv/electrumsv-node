@@ -1,0 +1,7 @@
+include electrumsv_node/bin/*
+include electrumsv_node/include/*
+include electrumsv_node/lib/*
+include electrumsv_node/share/*
+include electrumsv_node/README.md
+include electrumsv_node/data/*
+include electrumsv_node/bitcoin.conf

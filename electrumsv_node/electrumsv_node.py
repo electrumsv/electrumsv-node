@@ -7,12 +7,6 @@ import subprocess
 import requests
 import threading
 
-
-logging.basicConfig(
-    format="%(asctime)s %(levelname)s %(message)s",
-    level=logging.DEBUG,
-    datefmt="%Y-%m-%d %H-%M-%S",
-)
 logger = logging.getLogger("download_bitcoind")
 logging.getLogger("requests").setLevel(logging.WARNING)
 logging.getLogger("urllib3").setLevel(logging.WARNING)
@@ -34,7 +28,7 @@ def _create_if_not_exist(path):
             continue
         else:
             os.mkdir(cur_dir)
-            logger.debug(f"created {cur_dir} successfully")
+            logger.debug(f"created '{cur_dir}' successfully")
 
 def _is_bitcoind_running() -> bool:
     try:
@@ -73,7 +67,7 @@ def reset():
         logger.debug("resetting state of RegTest bitcoin daemon...")
         assert not _is_bitcoind_running(), "the bitcoin daemon must be shutdown to reset"
         shutil.rmtree(path_to_data_dir)
-        logger.debug(f"removed {path_to_data_dir} successfully")
+        logger.debug(f"removed '{path_to_data_dir}' successfully")
         _create_if_not_exist(path_to_data_dir)
     except Exception as e:
         logger.exception(e)

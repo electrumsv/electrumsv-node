@@ -3,6 +3,12 @@ import time
 
 from electrumsv_node import electrumsv_node
 
+logging.basicConfig(
+    format="%(asctime)s %(levelname)s %(message)s",
+    level=logging.DEBUG,
+    datefmt="%Y-%m-%d %H-%M-%S",
+)
+
 def test_start_stop_reset():
     try:
         electrumsv_node.start()
