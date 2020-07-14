@@ -19,3 +19,5 @@ def test_start_stop_reset():
         assert True
     except Exception as e:
         raise e
+
+test_start_stop_reset()

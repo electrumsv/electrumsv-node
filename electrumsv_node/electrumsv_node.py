@@ -6,6 +6,7 @@ from pathlib import Path
 import subprocess
 import requests
 import threading
+import time
 
 logger = logging.getLogger("download_bitcoind")
 logging.getLogger("requests").setLevel(logging.WARNING)
@@ -41,15 +42,13 @@ def _is_bitcoind_running() -> bool:
         return False
 
 def start():
-    def run_bitcoind():
-        subprocess.run(f"{path_to_bitcoind} -conf={path_to_config} -datadir={path_to_data_dir} "
-                       f"-rpcuser=rpcuser -rpcpassword=rpcpassword", shell=True)
-
     logger.debug("starting RegTest bitcoin daemon...")
-    thread1 = threading.Thread(target=run_bitcoind)
-    thread1.start()
+    subprocess.Popen(
+        f"start cmd /C {path_to_bitcoind} -conf={path_to_config} -datadir={path_to_data_dir} "
+        f"-rpcuser=rpcuser -rpcpassword=rpcpassword", shell=True)
 
-def stop():
+
+def stop(first_attempt=True):
     try:
         logger.debug("stopping RegTest bitcoin daemon...")
         assert _is_bitcoind_running(), "bitcoin daemon is not running."
@@ -59,8 +58,12 @@ def stop():
         logger.debug("bitcoin daemon stopped.")
         return result
     except Exception as e:
-        logger.exception(e)
-        raise
+        if first_attempt:
+            logger.error(str(e) + " Retrying after 1 second in case it is still waking up...")
+            time.sleep(1)
+            stop(first_attempt=False)
+        else:
+            logger.error(str(e))
 
 def reset():
     try:
