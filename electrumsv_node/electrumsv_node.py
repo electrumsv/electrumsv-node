@@ -43,6 +43,7 @@ def _is_bitcoind_running() -> bool:
 
 def start():
     logger.debug("starting RegTest bitcoin daemon...")
+    _create_if_not_exist(path_to_data_dir)
     subprocess.Popen(
         f"start cmd /C {path_to_bitcoind} -conf={path_to_config} -datadir={path_to_data_dir} "
         f"-rpcuser=rpcuser -rpcpassword=rpcpassword", shell=True)

@@ -3,3 +3,5 @@ dist/*
 *.egg-info*
 *.pyc*
 *.idea
+electrumsv_node/bin/*
+electrumsv_node/data/regtest/*
