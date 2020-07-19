@@ -4,8 +4,9 @@ import os
 import shutil
 from pathlib import Path
 import subprocess
+from typing import Tuple
+
 import requests
-import threading
 import time
 
 logger = logging.getLogger("download_bitcoind")
@@ -76,3 +77,21 @@ def reset():
     except Exception as e:
         logger.exception(e)
         raise
+
+def call_any(method_name: str, *args):
+    result = None
+    try:
+        if not args:
+            params = []
+        else:
+            params = [*args]
+        # print(f"calling method: {method_name}")
+        payload = json.dumps({"jsonrpc": "2.0", "method": f"{method_name}", "params": params,
+            "id": 0})
+        result = requests.post("http://rpcuser:rpcpassword@127.0.0.1:18332", data=payload)
+        result.raise_for_status()
+        return result
+    except requests.exceptions.HTTPError as e:
+        if result is not None:
+            logger.error(result.json()['error']['message'])
+        raise e

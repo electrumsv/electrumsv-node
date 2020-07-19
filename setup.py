@@ -10,7 +10,12 @@ from setuptools import find_packages, setup
 
 """
 # on a win32 machine
+py -3.7-32 .\setup.py build bdist_wheel --plat-name win32
+py -3.8-32 .\setup.py build bdist_wheel --plat-name win32
 py -3.7 .\setup.py build bdist_wheel --plat-name win-amd64
+py -3.8 .\setup.py build bdist_wheel --plat-name win-amd64
+twine upload dist/*
+
 # on a linux machine
 py -3.7 .\setup.py build bdist_wheel --plat-name linux_x86_64
 
