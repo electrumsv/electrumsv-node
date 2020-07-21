@@ -14,6 +14,10 @@ def test_start_stop_reset():
     try:
         electrumsv_node.start()
         time.sleep(5)
+        electrumsv_node.start()
+        electrumsv_node.start()
+        assert electrumsv_node.is_running()
+        time.sleep(5)
         electrumsv_node.stop()
         time.sleep(5)
         electrumsv_node.reset()

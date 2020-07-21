@@ -32,7 +32,7 @@ def _create_if_not_exist(path):
             os.mkdir(cur_dir)
             logger.debug(f"created '{cur_dir}' successfully")
 
-def _is_bitcoind_running() -> bool:
+def is_running() -> bool:
     try:
         payload = json.dumps({"jsonrpc": "2.0", "method": "getinfo", "params": [], "id": 0})
         result = requests.post("http://rpcuser:rpcpassword@127.0.0.1:18332", data=payload)
@@ -53,7 +53,7 @@ def start():
 def stop(first_attempt=True):
     try:
         logger.debug("stopping RegTest bitcoin daemon...")
-        assert _is_bitcoind_running(), "bitcoin daemon is not running."
+        assert is_running(), "bitcoin daemon is not running."
         payload = json.dumps({"jsonrpc": "2.0", "method": "stop", "params": [], "id": 0})
         result = requests.post("http://rpcuser:rpcpassword@127.0.0.1:18332", data=payload)
         result.raise_for_status()
@@ -70,7 +70,7 @@ def stop(first_attempt=True):
 def reset():
     try:
         logger.debug("resetting state of RegTest bitcoin daemon...")
-        assert not _is_bitcoind_running(), "the bitcoin daemon must be shutdown to reset"
+        assert not is_running(), "the bitcoin daemon must be shutdown to reset"
         shutil.rmtree(path_to_data_dir)
         logger.debug(f"removed '{path_to_data_dir}' successfully")
         _create_if_not_exist(path_to_data_dir)
@@ -85,7 +85,6 @@ def call_any(method_name: str, *args):
             params = []
         else:
             params = [*args]
-        # print(f"calling method: {method_name}")
         payload = json.dumps({"jsonrpc": "2.0", "method": f"{method_name}", "params": params,
             "id": 0})
         result = requests.post("http://rpcuser:rpcpassword@127.0.0.1:18332", data=payload)
