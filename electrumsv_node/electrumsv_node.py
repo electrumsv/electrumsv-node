@@ -4,7 +4,6 @@ import os
 import shutil
 from pathlib import Path
 import subprocess
-from typing import Tuple
 
 import requests
 import time
