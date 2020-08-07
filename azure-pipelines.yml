@@ -1,0 +1,31 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+trigger:
+- master
+
+jobs:
+- job: Windows
+  pool: {vmImage: 'windows-latest'}
+  variables:
+    vcpkgVersion: 2020.06.15
+    vcpkgInstallParamFile: '$(Build.SourcesDirectory)/.azure-pipelines/vcpkg/x64-windows-static.txt'
+    vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
+
+  steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: 3.7
+    - task: Cache@2
+      displayName: Cache vcpkg
+      inputs:
+        key: $(vcpkgInstallParamFile) | "$(vcpkgVersion)" | "$(Agent.OS)"
+        path: '$(vcpkgBinariesPath)'
+    - script: |
+        py -3 -m pip install -U wheel
+        py -3 setup.py build bdist_wheel --plat-name win-amd64
+        dir
+    - task: PublishBuildArtifacts@1
+      inputs: {pathtoPublish: 'dist'}

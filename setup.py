@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
+import glob
 import shutil
 import subprocess
 import sys
+import os
 from pathlib import Path
 from distutils.dir_util import copy_tree
 
@@ -22,28 +24,47 @@ cd .\dist
 py -3.7 -m pip install .\electrumsv_node-1.2.1-py3-none-win_amd64.whl --force
 """
 
+
 with open('electrumsv_node/__init__.py', 'r') as f:
     for line in f:
         if line.startswith('__version__'):
             version = line.strip().split('= ')[1].strip("'")
             break
 
-bitcoin_version = '1.0.2'
+bitcoin_version = '1.0.4'
 
 if sys.platform == 'win32':
-    shutil.copy("MANIFEST_WIN32.in", "MANIFEST.in")
-    win32_bitcoin = Path("win32_bin")
-    package_bin = Path("electrumsv_node").joinpath("bin")
-    copy_tree(win32_bitcoin.__str__(), package_bin.__str__())
+    subprocess.run(r".azure-pipelines\windows-build.bat")
 
+    shutil.copy("MANIFEST_WIN32.in", "MANIFEST.in")
+
+    package_bin_path = os.path.join("electrumsv_node", "bin")
+    binaries_path = os.path.join("bitcoin-sv", "build", "src", "Release", "*.exe")
+    for binary_path in glob.glob(binaries_path):
+        shutil.copy(binary_path, package_bin_path)
 
 elif sys.platform == 'linux':
+    # Manylinux compilation is on Centos 6, and requires manual building of boost.
+    # We would really want to have a pre-configured docker image with it present to make it
+    # rather than faking it as we do locally.
+
+    # subprocess.run(".azure-pipelines/linux-build.sh", shell=True)
+    # if not os.path.exists("bitcoin-sv"):
+    #     sys.exit("Failed to locate the Bitcoin SV build directory")
+
+    # for artifact_name in ("bitcoind", "bitcoin-seeder", "bitcoin-cli", "bitcoin-tx",
+    #         "bitcoin-miner", "LICENSE"):
+    #     shutil.copy(f"bitcoin-sv/{artifact_name}", "electrumsv_node/bin/")
+
+    # shutil.copy("MANIFEST_LINUX.in", "MANIFEST.in")
+
     shutil.copy("MANIFEST_LINUX.in", "MANIFEST.in")
-    subprocess.run(f"wget https://download.bitcoinsv.io/bitcoinsv/{bitcoin_version}/bitcoin-sv-{bitcoin_version}-x86_64-linux-gnu.tar.gz", shell=True)
-    subprocess.run(f"tar -xzf bitcoin-sv-{bitcoin_version}-x86_64-linux-gnu.tar.gz", shell=True)
-    linux_bitcoin = Path(f"bitcoin-sv-{bitcoin_version}")
-    copy_tree(linux_bitcoin.__str__(), "electrumsv_node")
-    shutil.rmtree(linux_bitcoin.__str__())
+    file_name = f"bitcoin-sv-{bitcoin_version}-x86_64-linux-gnu.tar.gz"
+    subprocess.run(f"curl -L https://download.bitcoinsv.io/bitcoinsv/{bitcoin_version}/{file_name} > {file_name}", shell=True)
+    subprocess.run(f"tar -xzf {file_name}", shell=True)
+    linux_bitcoin = f"bitcoin-sv-{bitcoin_version}"
+    copy_tree(linux_bitcoin, "electrumsv_node")
+    shutil.rmtree(linux_bitcoin)
 
 setup(
     name='electrumsv_node',
