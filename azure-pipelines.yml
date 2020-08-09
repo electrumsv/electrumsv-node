@@ -5,6 +5,8 @@
 
 trigger:
 - master
+- releases/*
+- features/*
 
 jobs:
 - job: Windows
