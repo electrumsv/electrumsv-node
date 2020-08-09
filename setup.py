@@ -33,7 +33,13 @@ with open('electrumsv_node/__init__.py', 'r') as f:
 
 bitcoin_version = '1.0.4'
 
-if sys.platform == 'win32':
+if sys.platform == 'darwin':
+    subprocess.run(".azure-pipelines/macos-build.sh", shell=True)
+
+    package_bin_path = os.path.join("electrumsv_node", "bin")
+    for binary_path in glob.glob(os.path.join("artifacts", "bitcoin*")):
+        shutil.copy(binary_path, package_bin_path)
+elif sys.platform == 'win32':
     subprocess.run(r".azure-pipelines\windows-build.bat")
 
     shutil.copy("MANIFEST_WIN32.in", "MANIFEST.in")

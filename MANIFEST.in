@@ -1,5 +1,3 @@
-include electrumsv_node/bin/*.exe
-include electrumsv_node/bin/*.exp
-include electrumsv_node/bin/*.lib
+include electrumsv_node/bin/*
 include electrumsv_node/data/*
 include electrumsv_node/bitcoin.conf
