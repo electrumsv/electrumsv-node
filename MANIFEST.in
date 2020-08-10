@@ -1,3 +1,4 @@
-include electrumsv_node/bin/*
+include electrumsv_node/LICENSE
+include electrumsv_node/README.md
 include electrumsv_node/data/*
 include electrumsv_node/bitcoin.conf

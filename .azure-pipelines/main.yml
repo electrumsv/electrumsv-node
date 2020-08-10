@@ -1,0 +1,70 @@
+# Python package
+# Create and test a Python package on multiple Python versions.
+# Add steps that analyze code, save the dist with the build record, publish to a PyPI-compatible index, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/python
+
+# See what the vm images are and what they have installed:
+# https://github.com/actions/virtual-environments/#available-environments
+
+trigger:
+- master
+- releases/*
+- features/*
+
+jobs:
+
+- job: Linux
+  pool: {vmImage: 'ubuntu-latest'}
+  steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: 3.7
+    - bash: |
+        export CIBW_BUILD=cp37-manylinux_x86_64
+        export CIBW_BUILD_VERBOSITY=1
+        export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
+        python3 -m pip install --upgrade pip
+        pip3 install cibuildwheel==1.5.5
+        cibuildwheel --output-dir wheelhouse .
+    - task: PublishBuildArtifacts@1
+      inputs:
+        artifactName: 'Linux'
+        pathtoPublish: 'wheelhouse'
+
+- job: MacOS
+  pool: {vmImage: 'macos-10.15'}
+  steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: 3.7
+    - script: |
+        python3 -m pip install -U wheel
+        python3 setup.py build bdist_wheel --plat-name macos-10.15-x86_64
+      displayName: Build Bitcoin SV (autotools) / Python packaging
+    - task: PublishBuildArtifacts@1
+      inputs:
+        artifactName: 'MacOS'
+        pathtoPublish: 'dist'
+
+- job: Windows
+  pool: {vmImage: 'windows-latest'}
+  variables:
+    vcpkgVersion: 2020.06.15
+    vcpkgInstallParamFile: '$(Build.SourcesDirectory)/.azure-pipelines/vcpkg/x64-windows-static.txt'
+    vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
+  steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: 3.7
+    - task: Cache@2
+      displayName: Cache vcpkg
+      inputs:
+        key: $(vcpkgInstallParamFile) | "$(vcpkgVersion)" | "$(Agent.OS)"
+        path: '$(vcpkgBinariesPath)'
+    - script: |
+        py -3.7-64 -m pip install -U wheel
+        py -3.7-64 setup.py build bdist_wheel --plat-name win-amd64
+    - task: PublishBuildArtifacts@1
+      inputs:
+        artifactName: 'Windows'
+        pathtoPublish: 'dist'
