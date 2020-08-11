@@ -39,7 +39,7 @@ jobs:
         versionSpec: 3.7
     - script: |
         python3 -m pip install -U wheel
-        python3 setup.py build bdist_wheel --plat-name macos-10.15-x86_64
+        python3 setup.py build bdist_wheel --plat-name macosx-10.15-x86_64
       displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
       inputs:
