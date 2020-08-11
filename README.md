@@ -30,14 +30,14 @@ To use it:
     time.sleep(5)
     electrumsv_node.reset()
 
-Console output will look something like this (with directory in site-packages):
+Console output will look something like this (with custom data directory):
 
     2020-07-03 19-35-57 DEBUG starting RegTest bitcoin daemon...
     2020-07-03 19-36-02 DEBUG stopping RegTest bitcoin daemon...
     2020-07-03 19-36-02 DEBUG bitcoin daemon stopped.
     2020-07-03 19-36-07 DEBUG resetting state of RegTest bitcoin daemon...
-    2020-07-03 19-36-09 DEBUG removed G:\electrumsv-node\electrumsv_node\data successfully
-    2020-07-03 19-36-09 DEBUG created G:\electrumsv-node\electrumsv_node\data successfully
+    2020-07-03 19-36-09 DEBUG removed 'G:\electrumsv-node\electrumsv_node\data' successfully
+    2020-07-03 19-36-09 DEBUG created 'G:\electrumsv-node\electrumsv_node\data' successfully
 
 ## The node data directory
 
