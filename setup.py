@@ -131,6 +131,9 @@ setup(
             "bin/*",
         ],
     },
+    install_requires=[
+        'requests',
+    ],
     distclass=BinaryDistribution,
     cmdclass={
         'install': InstallPlatlib,

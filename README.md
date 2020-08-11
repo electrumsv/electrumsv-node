@@ -9,9 +9,17 @@ These packages and the executables within them, are only intended for running no
 as Regtest blockchains. If we had the ability to do so, we would prevent them from running as any
 other blockchain. Do not bother us with your questions or problems related to non-Regtest usage.
 
-To install:
+* You must be using 64-bit Python 3.7 or 3.8.
+* You must be using Windows, MacOS or Linux.
+* You must have the latest version of the `pip` package.
 
-    > pip install electrumsv-node
+To update `pip`:
+
+    > python3 -m pip install --upgrade pip
+
+To install `electrumsv-node`:
+
+    > pip3 install electrumsv-node
 
 To use it:
 
