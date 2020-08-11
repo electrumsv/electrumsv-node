@@ -33,14 +33,20 @@ jobs:
 
 - job: MacOS
   pool: {vmImage: 'macos-10.15'}
+  strategy:
+    matrix:
+      Python37:
+        python.version: '3.7'
+      Python38:
+        python.version: '3.8'
   steps:
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: 3.7
+        versionSpec: $(python.version)
     - script: |
         python3 -m pip install -U wheel
         python3 setup.py build bdist_wheel --plat-name macosx-10.15-x86_64
-      displayName: Build Bitcoin SV (autotools) / Python packaging
+      displayName: Build Bitcoin SV (autotools) / Python $(python.version) packaging
     - task: PublishBuildArtifacts@1
       inputs:
         artifactName: 'MacOS'
