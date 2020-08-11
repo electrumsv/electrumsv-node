@@ -32,21 +32,33 @@ with open('electrumsv_node/__init__.py', 'r') as f:
 bitcoin_version = '1.0.4'
 target_names = ("bitcoind", "bitcoin-seeder", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
 
+
+def _resolve_bsv_build_path() -> str:
+    build_path = os.environ.get("BSV_BUILD_PATH")
+    if build_path is None:
+        build_path = "bitcoin-sv"
+    return build_path
+
+BSV_BUILD_PATH = _resolve_bsv_build_path()
+
+
 if sys.platform == 'darwin':
-    subprocess.run("contrib/build/macos-build.sh", shell=True)
+    if not os.path.exists(BSV_BUILD_PATH):
+        subprocess.run(f"contrib/build/macos-build.sh {BSV_BUILD_PATH}", shell=True)
 
     # Bundle the executables that were just built with the node.
     package_bin_path = os.path.join("electrumsv_node", "bin")
     for target_name in target_names:
-        artifact_path = os.path.join("bitcoin-sv", "src", target_name)
+        artifact_path = os.path.join(BSV_BUILD_PATH, "src", target_name)
         shutil.copy(artifact_path, package_bin_path)
 
 elif sys.platform == 'win32':
-    subprocess.run(r"contrib\build\windows-build.bat", shell=True)
+    if not os.path.exists(BSV_BUILD_PATH):
+        subprocess.run(f"contrib\\build\\windows-build.bat {BSV_BUILD_PATH}", shell=True)
 
     # Bundle the executables that were just built with the node.
     package_bin_path = os.path.join("electrumsv_node", "bin")
-    binaries_path = os.path.join("bitcoin-sv", "build", "src", "Release", "*.exe")
+    binaries_path = os.path.join(BSV_BUILD_PATH, "build", "src", "Release", "*.exe")
     for binary_path in glob.glob(binaries_path):
         shutil.copy(binary_path, package_bin_path)
 
@@ -55,12 +67,13 @@ elif sys.platform == 'linux':
     # We would really want to have a pre-configured docker image with it present to make it
     # rather than faking it as we do locally.
 
-    subprocess.run("contrib/build/linux-build.sh", shell=True)
-    if not os.path.exists("bitcoin-sv"):
+    if not os.path.exists(BSV_BUILD_PATH):
+        subprocess.run(f"contrib/build/linux-build.sh {BSV_BUILD_PATH}", shell=True)
+    if not os.path.exists(BSV_BUILD_PATH):
         sys.exit("Failed to locate the Bitcoin SV build directory")
 
     for target_name in target_names:
-        artifact_path = os.path.join("bitcoin-sv", "src", target_name)
+        artifact_path = os.path.join(BSV_BUILD_PATH, "src", target_name)
         subprocess.run(f"strip {artifact_path}", shell=True)
         shutil.copy(artifact_path, "electrumsv_node/bin/")
 
