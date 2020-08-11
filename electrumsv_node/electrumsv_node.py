@@ -58,10 +58,11 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None) -> int
     if data_path is None:
         data_path = DEFAULT_DATA_PATH
     os.makedirs(data_path, exist_ok=True)
-    args = [ f"\"{BITCOIND_PATH}\"", f"-conf=\"{config_path}\"", f"-datadir=\"{data_path}\"",
+    args = [ BITCOIND_PATH, f"-conf=\"{config_path}\"", f"-datadir=\"{data_path}\"",
         "-rpcuser=rpcuser", "-rpcpassword=rpcpassword" ]
     proc: subprocess.Popen
     if sys.platform == "win32":
+        args[0] = f"\"{args[0]}\""
         proc = subprocess.Popen(" ".join(args), creationflags=subprocess.DETACHED_PROCESS)
     elif sys.platform in ("darwin", "linux"):
         proc = subprocess.Popen(args)

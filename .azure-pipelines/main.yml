@@ -7,20 +7,25 @@
 # https://github.com/actions/virtual-environments/#available-environments
 
 trigger:
-- master
-- releases/*
-- features/*
+  batch: true
+  branches:
+    include:
+    - master
+    - releases/*
+    - features/*
 
 jobs:
 
 - job: Linux
   pool: {vmImage: 'ubuntu-latest'}
+  variables:
+    BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
   steps:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: 3.7
     - bash: |
-        export CIBW_BUILD=cp37-manylinux_x86_64
+        export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
@@ -33,28 +38,25 @@ jobs:
 
 - job: MacOS
   pool: {vmImage: 'macos-10.15'}
-  strategy:
-    matrix:
-      Python37:
-        python.version: '3.7'
-      Python38:
-        python.version: '3.8'
+  variables:
+    BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
   steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: $(python.version)
     - script: |
-        python3 -m pip install -U wheel
-        python3 setup.py build bdist_wheel --plat-name macosx-10.15-x86_64
-      displayName: Build Bitcoin SV (autotools) / Python $(python.version) packaging
+        export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64"
+        export CIBW_BUILD_VERBOSITY=1
+        python3 -m pip install --upgrade pip
+        pip3 install cibuildwheel==1.5.5
+        cibuildwheel --output-dir wheelhouse .
+      displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
       inputs:
         artifactName: 'MacOS'
-        pathtoPublish: 'dist'
+        pathtoPublish: 'wheelhouse'
 
 - job: Windows
   pool: {vmImage: 'windows-latest'}
   variables:
+    BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-windows'
     vcpkgVersion: 2020.06.15
     vcpkgInstallParamFile: '$(Build.SourcesDirectory)/.azure-pipelines/vcpkg/x64-windows-static.txt'
     vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
@@ -68,9 +70,12 @@ jobs:
         key: $(vcpkgInstallParamFile) | "$(vcpkgVersion)" | "$(Agent.OS)"
         path: '$(vcpkgBinariesPath)'
     - script: |
-        py -3.7-64 -m pip install -U wheel
-        py -3.7-64 setup.py build bdist_wheel --plat-name win-amd64
+        set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64"
+        set CIBW_BUILD_VERBOSITY=1
+        py -3 -m pip install --upgrade pip
+        py -3 -m pip install cibuildwheel==1.5.5
+        py -3 -m cibuildwheel --output-dir wheelhouse .
     - task: PublishBuildArtifacts@1
       inputs:
         artifactName: 'Windows'
-        pathtoPublish: 'dist'
+        pathtoPublish: 'wheelhouse'

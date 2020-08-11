@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# $1 - path to checkout and build Bitcoin SV in.
+
 # ---
 
 # try various methods, in order of preference, to detect distro
@@ -57,8 +59,8 @@ echo "/opt/boost_1_70/lib" > /etc/ld.so.conf.d/boost_1_70.conf
 ldconfig
 cd ../../
 
-git clone --branch v1.0.4 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git
-pushd bitcoin-sv
+git clone --branch v1.0.4 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
+pushd $1
 ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
 ./configure --disable-wallet --disable-tests --disable-bench --with-boost=/opt/boost_1_70
 make
