@@ -2,8 +2,6 @@ REM Unless echo is disabled for the vswhere loop, it prints every command.
 echo off
 
 REM %1 - path to checkout and build Bitcoin SV in.
-REM %2 - git clone URI.
-REM %3 - git clone branch name.
 
 set VSINSTALL_PATH=
 set VSWHERE_PATH=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe
@@ -20,8 +18,10 @@ call "%VSINSTALL_PATH%\VC\Auxiliary\Build\vcvars64.bat"
 
 echo on
 set VCPKG_ROOT=%VCPKG_INSTALLATION_ROOT%
+set BITCOIN_SV_REVISION=bugfix/cmake-windows-build
+set BITCOIN_SV_REPO=https://github.com/electrumsv/bitcoin-sv
 
-git clone --depth=1 --branch %3 %2 %1
+git clone --depth=1 --branch %BITCOIN_SV_REVISION% %BITCOIN_SV_REPO% %1
 
 pushd %1
 mkdir build

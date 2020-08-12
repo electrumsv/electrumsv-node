@@ -29,98 +29,53 @@ with open('electrumsv_node/__init__.py', 'r') as f:
             version = line.strip().split('= ')[1].strip("'")
             break
 
-
-BSV_BUILD_PATH = os.environ.get("BSV_BUILD_PATH", "bitcoin-sv")
-BSV_BUILD_ARTIFACTS_PATH = os.environ.get("BSV_BUILD_ARTIFACTS_PATH", "bitcoin-sv-results")
-BSV_GIT_URI = os.environ.get("BSV_GIT_URI", "https://github.com/electrumsv/bitcoin-sv")
-BSV_GIT_BRANCH = os.environ.get("BSV_GIT_BRANCH", "bugfix/cmake-windows-build")
-
-PACKAGE_BIN_PATH = os.path.join("electrumsv_node", "bin")
+bitcoin_version = '1.0.4'
+target_names = ("bitcoind", "bitcoin-seeder", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
 
 
-def _copy_build_artifacts_to_package() -> None:
-    shutil.rmtree(PACKAGE_BIN_PATH)
-    os.mkdir(PACKAGE_BIN_PATH)
+def _resolve_bsv_build_path() -> str:
+    build_path = os.environ.get("BSV_BUILD_PATH")
+    if build_path is None:
+        build_path = "bitcoin-sv"
+    return build_path
 
-    for target_name in os.listdir(BSV_BUILD_ARTIFACTS_PATH):
-        target_path = os.path.join(BSV_BUILD_ARTIFACTS_PATH, target_name)
-        if os.path.islink(target_path):
-            continue
-        if os.path.isfile(target_path):
-            shutil.copy(target_path, PACKAGE_BIN_PATH)
-        elif os.path.isdir(target_path):
-            shutil.copytree(target_path, os.path.join(PACKAGE_BIN_PATH, target_name))
+BSV_BUILD_PATH = _resolve_bsv_build_path()
 
 
 if sys.platform == 'darwin':
-    if not os.path.exists(BSV_BUILD_ARTIFACTS_PATH):
-        subprocess.run(
-            f"contrib/build/macos-build.sh {BSV_BUILD_PATH} {BSV_GIT_URI} {BSV_GIT_BRANCH}",
-            shell=True)
-        if not os.path.exists(BSV_BUILD_PATH):
-            sys.exit("Failed to locate the Bitcoin SV build directory")
+    if not os.path.exists(BSV_BUILD_PATH):
+        subprocess.run(f"contrib/build/macos-build.sh {BSV_BUILD_PATH}", shell=True)
 
-        ARTIFACT_PATHS = (
-            os.path.join("src", "bitcoind"),
-            os.path.join("src", "bitcoin-seeder"),
-            os.path.join("src", "bitcoin-cli"),
-            os.path.join("src", "bitcoin-tx"),
-            os.path.join("src", "bitcoin-miner"),
-        )
-
-        os.mkdir(BSV_BUILD_ARTIFACTS_PATH)
-        for artifact_path in ARTIFACT_PATHS:
-            shutil.copy(os.path.join(BSV_BUILD_PATH, artifact_path), BSV_BUILD_ARTIFACTS_PATH)
-
-    _copy_build_artifacts_to_package()
+    # Bundle the executables that were just built with the node.
+    package_bin_path = os.path.join("electrumsv_node", "bin")
+    for target_name in target_names:
+        artifact_path = os.path.join(BSV_BUILD_PATH, "src", target_name)
+        shutil.copy(artifact_path, package_bin_path)
 
 elif sys.platform == 'win32':
-    if not os.path.exists(BSV_BUILD_ARTIFACTS_PATH):
-        subprocess.run(
-            f"contrib\\build\\windows-build.bat {BSV_BUILD_PATH} {BSV_GIT_URI} {BSV_GIT_BRANCH}",
-            shell=True)
-        if not os.path.exists(BSV_BUILD_PATH):
-            sys.exit("Failed to locate the Bitcoin SV build directory")
+    if not os.path.exists(BSV_BUILD_PATH):
+        subprocess.run(f"contrib\\build\\windows-build.bat {BSV_BUILD_PATH}", shell=True)
 
-        BUILD_SUBPATH = os.path.join(BSV_BUILD_PATH, "build", "src", "Release")
-        ARTIFACT_PATHS = (
-            os.path.join(BUILD_SUBPATH, "bitcoind.exe"),
-            os.path.join(BUILD_SUBPATH, "bitcoin-cli.exe"),
-            os.path.join(BUILD_SUBPATH, "bitcoin-tx.exe"),
-            os.path.join(BUILD_SUBPATH, "bitcoin-miner.exe"),
-        )
-
-        os.mkdir(BSV_BUILD_ARTIFACTS_PATH)
-        for artifact_path in ARTIFACT_PATHS:
-            shutil.copy(os.path.join(BSV_BUILD_PATH, artifact_path), BSV_BUILD_ARTIFACTS_PATH)
-
-    _copy_build_artifacts_to_package()
+    # Bundle the executables that were just built with the node.
+    package_bin_path = os.path.join("electrumsv_node", "bin")
+    binaries_path = os.path.join(BSV_BUILD_PATH, "build", "src", "Release", "*.exe")
+    for binary_path in glob.glob(binaries_path):
+        shutil.copy(binary_path, package_bin_path)
 
 elif sys.platform == 'linux':
     # Manylinux compilation is on Centos 6, and requires manual building of boost.
     # We would really want to have a pre-configured docker image with it present to make it
     # rather than faking it as we do locally.
 
-    if not os.path.exists(BSV_BUILD_ARTIFACTS_PATH):
-        subprocess.run(
-            f"contrib/build/linux-build.sh {BSV_BUILD_PATH} {BSV_GIT_URI} {BSV_GIT_BRANCH}",
-            shell=True)
-        if not os.path.exists(BSV_BUILD_PATH):
-            sys.exit("Failed to locate the Bitcoin SV build directory")
+    if not os.path.exists(BSV_BUILD_PATH):
+        subprocess.run(f"contrib/build/linux-build.sh {BSV_BUILD_PATH}", shell=True)
+    if not os.path.exists(BSV_BUILD_PATH):
+        sys.exit("Failed to locate the Bitcoin SV build directory")
 
-        ARTIFACT_PATHS = (
-            os.path.join("src", "bitcoind"),
-            os.path.join("src", "bitcoin-seeder"),
-            os.path.join("src", "bitcoin-cli"),
-            os.path.join("src", "bitcoin-tx"),
-            os.path.join("src", "bitcoin-miner"),
-        )
-
-        os.mkdir(BSV_BUILD_ARTIFACTS_PATH)
-        for artifact_path in ARTIFACT_PATHS:
-            shutil.copy(os.path.join(BSV_BUILD_PATH, artifact_path), BSV_BUILD_ARTIFACTS_PATH)
-
-    _copy_build_artifacts_to_package()
+    for target_name in target_names:
+        artifact_path = os.path.join(BSV_BUILD_PATH, "src", target_name)
+        subprocess.run(f"strip {artifact_path}", shell=True)
+        shutil.copy(artifact_path, "electrumsv_node/bin/")
 
 
 class BinaryDistribution(Distribution):
@@ -162,11 +117,9 @@ setup(
         'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: End Users/Desktop',
-        'License :: Open BSV',
+        'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Operating System :: MacOS :: MacOS X',
-        'Operating System :: Microsoft :: Windows :: Windows 10',
-        'Operating System :: POSIX :: Linux',
+        'Operating System :: OS Independent',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
