@@ -16,15 +16,29 @@ trigger:
   paths:
     exclude: [ 'README.md' ]
 
+variables:
+  - name: BSV_GIT_URI
+    value: https://github.com/electrumsv/bitcoin-sv
+  - name: BSV_GIT_BRANCH
+    value: bugfix/cmake-windows-build
+  - name: BSV_GIT_REVISION
+    value: 94827a14b2ca3001a71837d302ff56c9d04b32d5
+
 jobs:
 - job: Linux
   pool: {vmImage: 'ubuntu-latest'}
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
+    BSV_RESULTS_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7-results'
   steps:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: 3.7
+    - task: Cache@2
+      displayName: Cache build results
+      inputs:
+        key: $(BSV_GIT_REVISION) | "$(Agent.OSArchitecture)" | "$(Agent.OS)"
+        path: '$(BSV_RESULTS_PATH)'
     - bash: |
         export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=1
@@ -40,7 +54,13 @@ jobs:
   pool: {vmImage: 'macos-10.15'}
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
+    BSV_RESULTS_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos-results'
   steps:
+    - task: Cache@2
+      displayName: Cache build results
+      inputs:
+        key: $(BSV_GIT_REVISION) | "$(Agent.OSArchitecture)" | "$(Agent.OS)"
+        path: '$(BSV_RESULTS_PATH)'
     - script: |
         export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64"
         export CIBW_BUILD_VERBOSITY=1
@@ -56,6 +76,7 @@ jobs:
   pool: {vmImage: 'windows-latest'}
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)\bitcoin-sv-windows'
+    BSV_RESULTS_PATH: '$(Build.BinariesDirectory)\bitcoin-sv-windows-results'
     vcpkgVersion: 2020.06.15
     vcpkgInstallParamFile: '$(Build.SourcesDirectory)/.azure-pipelines/vcpkg/x64-windows-static.txt'
     vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
@@ -68,6 +89,11 @@ jobs:
       inputs:
         key: $(vcpkgInstallParamFile) | "$(vcpkgVersion)" | "$(Agent.OS)"
         path: '$(vcpkgBinariesPath)'
+    - task: Cache@2
+      displayName: Cache build results
+      inputs:
+        key: $(BSV_GIT_REVISION) | "$(Agent.OSArchitecture)" | "$(Agent.OS)"
+        path: '$(BSV_RESULTS_PATH)'
     - script: |
         set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64"
         set CIBW_BUILD_VERBOSITY=1

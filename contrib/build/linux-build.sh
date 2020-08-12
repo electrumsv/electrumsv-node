@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # $1 - path to checkout and build Bitcoin SV in.
+# $2 - git clone URI.
+# $3 - git clone branch name.
 
 # ---
 
@@ -59,7 +61,7 @@ echo "/opt/boost_1_70/lib" > /etc/ld.so.conf.d/boost_1_70.conf
 ldconfig
 cd ../../
 
-git clone --branch v1.0.4 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
+git clone --branch $3 --depth=1 $2 $1
 pushd $1
 ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
 ./configure --disable-wallet --disable-tests --disable-bench --with-boost=/opt/boost_1_70
