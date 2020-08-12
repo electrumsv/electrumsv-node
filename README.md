@@ -1,3 +1,5 @@
+[![PyPI version](https://badge.fury.io/py/electrumsv-node.svg)](https://badge.fury.io/py/electrumsv-node) [![Build Status](https://dev.azure.com/electrumsv/ElectrumSV/_apis/build/status/electrumsv.electrumsv-node?branchName=master)](https://dev.azure.com/electrumsv/ElectrumSV/_build/latest?definitionId=5&branchName=master)
+
 # ElectrumSV-Node
 
 The project is intended to provide Python packages for Linux, MacOS and Windows that include and
