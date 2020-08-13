@@ -89,7 +89,7 @@ def stop(first_attempt: bool=True):
             logger.error(str(e))
 
 def reset(data_path: Optional[str]=None):
-    if data_path is not None:
+    if data_path is None:
         data_path = DEFAULT_DATA_PATH
     try:
         logger.debug("resetting state of RegTest bitcoin daemon...")
