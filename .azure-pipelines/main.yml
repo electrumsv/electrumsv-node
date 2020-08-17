@@ -59,6 +59,7 @@ jobs:
     vcpkgVersion: 2020.06.15
     vcpkgInstallParamFile: '$(Build.SourcesDirectory)/.azure-pipelines/vcpkg/x64-windows-static.txt'
     vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
+  timeoutInMinutes: 120
   steps:
     - task: UsePythonVersion@0
       inputs:

@@ -63,6 +63,7 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None) -> int
     proc: subprocess.Popen
     if sys.platform == "win32":
         args[0] = f"\"{args[0]}\""
+        print("ZZZZZ", args)
         proc = subprocess.Popen(" ".join(args), creationflags=subprocess.DETACHED_PROCESS)
     elif sys.platform in ("darwin", "linux"):
         proc = subprocess.Popen(args)

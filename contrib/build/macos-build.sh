@@ -7,6 +7,7 @@ git clone --branch bugfix/cmake-windows-build --depth=1 https://github.com/elect
 export MACOSX_DEPLOYMENT_TARGET=10.15
 pushd $1
 ./autogen.sh
-./configure --disable-wallet --disable-tests --disable-bench
+# --disable-wallet
+./configure --disable-tests --disable-bench
 make
 popd

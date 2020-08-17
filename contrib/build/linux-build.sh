@@ -39,7 +39,7 @@ echo "supported distribution version: '$d_version'"
 # ---
 
 yum install -y epel-release
-yum install -y gcc-c++ libtool make autoconf automake openssl-devel libevent-devel
+yum install -y gcc-c++ libtool make autoconf automake openssl-devel libevent-devel libdb-devel libdb-cxx-devel
 yum install centos-release-scl -y
 yum install devtoolset-7-gcc* -y
 source /opt/rh/devtoolset-7/enable
@@ -62,6 +62,7 @@ cd ../../
 git clone --branch v1.0.4 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
 pushd $1
 ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
-./configure --disable-wallet --disable-tests --disable-bench --with-boost=/opt/boost_1_70
+# --disable-wallet
+./configure --disable-tests --disable-bench --with-boost=/opt/boost_1_70
 make
 popd

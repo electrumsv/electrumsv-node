@@ -35,8 +35,10 @@ REM warning C4805: '|': unsafe mix of type 'uint32_t' and type 'bool' in operati
 REM warning C4834: discarding return value of function with 'nodiscard' attribute
 REM warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead.
 
+REM -DBUILD_BITCOIN_WALLET=OFF
+
 %VCPKG_ROOT%\vcpkg.exe install "@%vcpkgInstallParamFile%"
-cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -Ax64 -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_BUILD_TYPE=Release -DBUILD_BITCOIN_WALLET=OFF -DBUILD_BITCOIN_BENCH=OFF -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
+cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -Ax64 -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_BUILD_TYPE=Release -DBUILD_BITCOIN_BENCH=OFF -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
 msbuild BitcoinSV.sln /p:Configuration=Release /p:Platform="x64" /nowarn:"C4146,C4244,C4309,C4267,C4805,C4834,C4996"
 
 popd

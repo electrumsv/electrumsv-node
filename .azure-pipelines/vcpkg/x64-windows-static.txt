@@ -12,3 +12,4 @@ boost-multi-index
 libevent
 openssl
 zeromq
+berkeleydb
