@@ -5,10 +5,17 @@ import shutil
 import signal
 import subprocess
 import sys
-from typing import Optional
+from typing import Optional, Union
 
 import requests
 import time
+
+
+class FailedToStartError(Exception):
+    pass
+
+class FailedToStopError(Exception):
+    pass
 
 
 # https://stackoverflow.com/a/16809886/11881963
@@ -50,9 +57,8 @@ def is_running() -> bool:
 
 
 # https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
-def start(config_path: Optional[str]=None, data_path: Optional[str]=None) -> int:
+def _start(config_path: Optional[str]=None, data_path: Optional[str]=None) -> int:
     global DEFAULT_DATA_PATH
-    logger.debug("starting bitcoin node")
     if config_path is None:
         config_path = os.path.join(FILE_PATH, "bitcoin.conf")
     if data_path is None:
@@ -69,6 +75,28 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None) -> int
     else:
         raise UnknownPlatformError(sys.platform)
     return proc.pid
+
+
+def is_node_running():
+    for timeout in (3, 3, 3):
+        logger.debug("polling bitcoin node...")
+        if is_running():
+            return True
+        time.sleep(timeout)
+
+
+def start(config_path: Optional[str] = None, data_path: Optional[str] = None) -> int:
+    logger.debug("starting bitcoin node")
+    pid = _start()
+    if is_node_running():
+        return pid
+
+    # sometimes the node is still shutting down from a previous run
+    logger.debug("starting the bitcoin node failed - retrying...")
+    pid = _start()
+    if is_node_running():
+        return pid
+    raise FailedToStartError("failed to start bitcoin node")
 
 
 def stop(first_attempt: bool=True):
@@ -88,19 +116,36 @@ def stop(first_attempt: bool=True):
         else:
             logger.error(str(e))
 
+
+def is_node_stopped():
+    for timeout in (3, 3, 3):
+        if is_running():
+            logger.error("the bitcoin daemon must be shutdown to reset - retrying in 3 seconds")
+            time.sleep(timeout)
+        else:
+            return True
+    return False
+
+
 def reset(data_path: Optional[str]=None):
     if data_path is None:
         data_path = DEFAULT_DATA_PATH
     try:
         logger.debug("resetting state of RegTest bitcoin daemon...")
-        assert not is_running(), "the bitcoin daemon must be shutdown to reset"
+        if not is_node_stopped():
+            logger.error("the bitcoin daemon must be shutdown to reset - reached max reattempts")
+            raise FailedToStopError("node is not stopped - try stopping the node before "
+                "resetting")
         if os.path.exists(data_path):
             shutil.rmtree(data_path)
             logger.debug(f"removed '{data_path}' successfully")
         os.makedirs(data_path, exist_ok=True)
+    except FailedToStopError:
+        raise
     except Exception as e:
         logger.exception(e)
         raise
+
 
 def call_any(method_name: str, *args):
     result = None

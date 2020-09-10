@@ -2,7 +2,7 @@ import logging
 import time
 
 from electrumsv_node import electrumsv_node
-from electrumsv_node.electrumsv_node import call_any
+from electrumsv_node.electrumsv_node import call_any, FailedToStopError
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -10,20 +10,25 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H-%M-%S",
 )
 
+logger = logging.getLogger("testing")
+
+
 def test_start_stop_reset():
     try:
         electrumsv_node.start()
-        time.sleep(5)
-        electrumsv_node.start()
-        electrumsv_node.start()
-        assert electrumsv_node.is_running()
-        time.sleep(5)
         electrumsv_node.stop()
-        time.sleep(5)
+        electrumsv_node.start()
+        electrumsv_node.stop()
+        try:
+            electrumsv_node.reset()
+        except FailedToStopError as e:
+            logger.debug(str(e))
+            electrumsv_node.stop()
         electrumsv_node.reset()
         assert True
     except Exception as e:
         raise e
+
 
 def test_call_any(method_name='help', *args):
     try:
