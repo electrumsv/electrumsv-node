@@ -1,5 +1,6 @@
 
 import glob
+import platform
 import shutil
 import subprocess
 import sys
@@ -29,7 +30,7 @@ with open('electrumsv_node/__init__.py', 'r') as f:
             version = line.strip().split('= ')[1].strip("'")
             break
 
-bitcoin_version = '1.0.4'
+bitcoin_version = '1.0.5'
 target_names = ("bitcoind", "bitcoin-seeder", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
 
 
