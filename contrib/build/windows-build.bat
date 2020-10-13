@@ -18,7 +18,7 @@ call "%VSINSTALL_PATH%\VC\Auxiliary\Build\vcvars64.bat"
 
 echo on
 set VCPKG_ROOT=%VCPKG_INSTALLATION_ROOT%
-set BITCOIN_SV_REVISION=bugfix/cmake-windows-build
+set BITCOIN_SV_REVISION=bugfix/cmake-windows-build-1.0.5
 set BITCOIN_SV_REPO=https://github.com/electrumsv/bitcoin-sv
 
 git clone --depth=1 --branch %BITCOIN_SV_REVISION% %BITCOIN_SV_REPO% %1

@@ -14,13 +14,12 @@ from setuptools.dist import Distribution
 # CI to produce binary wheels on Windows, Linux and MacOS.
 
 """
-twine upload dist/*
+1) py -3.7 ./setup.py build bdist_wheel
+2) delete wheel from dist/
+3) populate dist/ with wheels from azure pipelines
+4) twine upload dist/*
 
-# on a linux machine (this won't work unless we change the script to be)
-py -3.7 ./setup.py build bdist_wheel --plat-name linux_x86_64
-
-cd .\\dist
-py -3.7 -m pip install .\\electrumsv_node-1.2.1-py3-none-win_amd64.whl --force
+py -3.7 -m pip install --force --no-cache electrumsv_node
 """
 
 
@@ -30,7 +29,6 @@ with open('electrumsv_node/__init__.py', 'r') as f:
             version = line.strip().split('= ')[1].strip("'")
             break
 
-bitcoin_version = '1.0.5'
 target_names = ("bitcoind", "bitcoin-seeder", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
 
 

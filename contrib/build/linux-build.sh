@@ -59,7 +59,7 @@ echo "/opt/boost_1_70/lib" > /etc/ld.so.conf.d/boost_1_70.conf
 ldconfig
 cd ../../
 
-git clone --branch v1.0.4 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
+git clone --branch v1.0.5 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
 pushd $1
 ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
 # --disable-wallet
