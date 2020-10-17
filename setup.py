@@ -38,6 +38,7 @@ def _resolve_bsv_build_path() -> str:
         build_path = "bitcoin-sv"
     return build_path
 
+
 BSV_BUILD_PATH = _resolve_bsv_build_path()
 
 
@@ -85,11 +86,17 @@ class BinaryDistribution(Distribution):
     def has_ext_modules(self):
         return True
 
-# See https://github.com/google/or-tools/issues/616 and https://github.com/bigartm/bigartm/issues/840
+# See https://github.com/google/or-tools/issues/616 and
+# https://github.com/bigartm/bigartm/issues/840
 class InstallPlatlib(install):
     def finalize_options(self):
         install.finalize_options(self)
         self.install_lib = self.install_platlib
+
+
+def _locate_requirements():
+    with open("requirements.txt", 'r') as f:
+        return f.read().splitlines()
 
 setup(
     name='electrumsv_node',
@@ -123,6 +130,7 @@ setup(
         'Programming Language :: Python :: 3.8',
         'Programming Language :: Python :: Implementation :: CPython',
     ],
+    install_requires=_locate_requirements(),
     include_package_data=True,
     packages=find_packages(),
     package_data={
@@ -130,9 +138,6 @@ setup(
             "bin/*",
         ],
     },
-    install_requires=[
-        'requests',
-    ],
     distclass=BinaryDistribution,
     cmdclass={
         'install': InstallPlatlib,

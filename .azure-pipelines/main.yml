@@ -32,10 +32,18 @@ jobs:
         python3 -m pip install --upgrade pip
         pip3 install cibuildwheel==1.5.5
         cibuildwheel --output-dir wheelhouse .
+      displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
       inputs:
         artifactName: 'Linux'
         pathtoPublish: 'wheelhouse'
+    - script: |
+        python3 -m pip install pytest pytest-cov wheel
+        python3 ./contrib/install_built_wheel.py wheelhouse
+        cd tests
+        python3 -m pytest .
+      displayName: Install from wheel and run tests
+
 - job: MacOS
   pool: {vmImage: 'macos-10.15'}
   variables:
@@ -52,6 +60,18 @@ jobs:
       inputs:
         artifactName: 'MacOS'
         pathtoPublish: 'wheelhouse'
+    - script: |
+        python3 -m pip install wheel
+        python3 -m pip install wheelhouse/electrumsv_node-
+        python3 -m pip install pytest pytest-cov
+      displayName: 'install sdk'
+    - script: |
+        python3 -m pip install pytest pytest-cov wheel
+        python3 ./contrib/install_built_wheel.py wheelhouse
+        cd tests
+        python3 -m pytest .
+      displayName: Install from wheel and run tests
+
 - job: Windows
   pool: {vmImage: 'windows-latest'}
   variables:
@@ -76,7 +96,14 @@ jobs:
         py -3 -m pip install --upgrade pip
         py -3 -m pip install cibuildwheel==1.5.5
         py -3 -m cibuildwheel --output-dir wheelhouse .
+      displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
       inputs:
         artifactName: 'Windows'
         pathtoPublish: 'wheelhouse'
+    - script: |
+        py -3 -m pip install pytest pytest-cov wheel
+        py -3 ./contrib/install_built_wheel.py wheelhouse
+        cd tests
+        py -3 -m pytest .
+      displayName: Install from wheel and run tests
