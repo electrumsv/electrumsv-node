@@ -5,7 +5,7 @@ import shutil
 import signal
 import subprocess
 import sys
-from typing import Optional, Union
+from typing import Optional
 
 import requests
 import time
@@ -35,6 +35,7 @@ class UnknownPlatformError(Exception):
 FILE_PATH = os.path.dirname(os.path.abspath(__file__))
 BITCOIND_PATH = os.path.join(FILE_PATH, "bin", "bitcoind")
 
+
 def _locate_default_data_path() -> str:
     if sys.platform == "win32":
         return os.path.join(os.environ.get("LOCALAPPDATA"), "ElectrumSV-Node")
@@ -57,21 +58,35 @@ def is_running() -> bool:
 
 
 # https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
-def _start(config_path: Optional[str]=None, data_path: Optional[str]=None) -> int:
+def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
+           rpcport: Optional[int]=18332, rpcuser: Optional[str]='rpcuser',
+           rpcpassword: Optional[str]='rpcpassword', network: Optional[str]='regtest') -> int:
     global DEFAULT_DATA_PATH
+    split_command = [BITCOIND_PATH]
+    valid_networks = {'regtest', 'testnet', 'stn', 'main'}
+    assert network in valid_networks, f"must select 'network' from {valid_networks}"
+    if network != 'main':
+        split_command.append(f"-{network}")
+
     if config_path is None:
         config_path = os.path.join(FILE_PATH, "bitcoin.conf")
     if data_path is None:
         data_path = DEFAULT_DATA_PATH
     os.makedirs(data_path, exist_ok=True)
-    args = [ BITCOIND_PATH, f"-conf={config_path}", f"-datadir={data_path}",
-        "-rpcuser=rpcuser", "-rpcpassword=rpcpassword" ]
+    split_command.extend([
+        f"-conf={config_path}",
+        f"-datadir={data_path}",
+        f"-rpcuser={rpcuser}",
+        f"-rpcpassword={rpcpassword}",
+        f"-rpcport={rpcport}"
+    ])
+
     proc: subprocess.Popen
     if sys.platform == "win32":
-        args[0] = f"\"{args[0]}\""
-        proc = subprocess.Popen(" ".join(args), creationflags=subprocess.DETACHED_PROCESS)
+        split_command[0] = f"\"{split_command[0]}\""
+        proc = subprocess.Popen(" ".join(split_command), creationflags=subprocess.DETACHED_PROCESS)
     elif sys.platform in ("darwin", "linux"):
-        proc = subprocess.Popen(args)
+        proc = subprocess.Popen(split_command)
     else:
         raise UnknownPlatformError(sys.platform)
     return proc.pid
@@ -85,37 +100,39 @@ def is_node_running():
         time.sleep(timeout)
 
 
-def start(config_path: Optional[str] = None, data_path: Optional[str] = None) -> int:
+def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
+           rpcport: Optional[int]=18332, rpcuser: Optional[str]='rpcuser',
+           rpcpassword: Optional[str]='rpcpassword', network: Optional[str]='regtest') -> int:
     logger.debug("starting bitcoin node")
-    pid = _start()
+    pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network)
     if is_node_running():
         return pid
 
     # sometimes the node is still shutting down from a previous run
     logger.debug("starting the bitcoin node failed - retrying...")
-    pid = _start()
+    pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network)
     if is_node_running():
         return pid
     raise FailedToStartError("failed to start bitcoin node")
 
 
-def stop(first_attempt: bool=True):
+def stop(first_attempt: bool=True, rpcport: Optional[int]=18332):
     try:
         logger.debug("stopping bitcoin node")
         assert is_running(), "bitcoin daemon is not running."
         payload = json.dumps({"jsonrpc": "2.0", "method": "stop", "params": [], "id": 0})
-        result = requests.post("http://rpcuser:rpcpassword@127.0.0.1:18332", data=payload)
+        result = requests.post(f"http://rpcuser:rpcpassword@127.0.0.1:{rpcport}", data=payload)
         result.raise_for_status()
         logger.debug("bitcoin daemon stopped.")
         return result
     except Exception as e:
-        if first_attempt:
-            logger.error(str(e) + " Retrying after 1 second in case it is still waking up...")
-            time.sleep(1)
-            stop(first_attempt=False)
-        else:
-            logger.error(str(e))
-
+        # if first_attempt:
+        #     logger.error(str(e) + " Retrying after 1 second in case it is still waking up...")
+        #     time.sleep(1)
+        #     stop(first_attempt=False)
+        # else:
+        #     logger.error(str(e))
+        logger.error(str(e))
 
 def is_node_stopped():
     for timeout in (3, 3, 3):
