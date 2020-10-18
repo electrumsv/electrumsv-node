@@ -95,7 +95,7 @@ def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
 
 
 def is_node_running(rpcport: Optional[int]=18332):
-    for timeout in (3, 3, 3):
+    for timeout in [1] * 5:
         logger.debug("polling bitcoin node...")
         if is_running(rpcport):
             return True
@@ -109,12 +109,16 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
     logger.debug("starting bitcoin node")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port)
     if is_node_running(rpcport):
+        time.sleep(1)  # Avoids failure of stop() if called immediately afterwards
+        logger.info("bitcoin node online")
         return pid
 
     # sometimes the node is still shutting down from a previous run
     logger.debug("starting the bitcoin node failed - retrying...")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port)
     if is_node_running(rpcport):
+        time.sleep(1)  # Avoids failure of stop() if called immediately afterwards
+        logger.info("bitcoin node online")
         return pid
     raise FailedToStartError("failed to start bitcoin node")
 
@@ -127,7 +131,6 @@ def stop(first_attempt: bool=True, rpcport: Optional[int]=18332):
         result = requests.post(f"http://rpcuser:rpcpassword@127.0.0.1:{rpcport}", data=payload, timeout=0.5)
         result.raise_for_status()
         logger.debug("bitcoin daemon stopped.")
-        return result
     except Exception as e:
         if first_attempt:
             logger.error(str(e) + " Retrying after 1 second in case it is still waking up...")
@@ -135,6 +138,7 @@ def stop(first_attempt: bool=True, rpcport: Optional[int]=18332):
             stop(first_attempt=False, rpcport=rpcport)
         else:
             logger.error(str(e))
+            return
         logger.error(str(e))
 
 
@@ -175,9 +179,10 @@ def call_any(method_name: str, *args, rpcport: Optional[int]=18332):
             params = []
         else:
             params = [*args]
-        payload = json.dumps({"jsonrpc": "2.0", "method": f"{method_name}", "params": params,
-            "id": 0})
-        result = requests.post(f"http://rpcuser:rpcpassword@127.0.0.1:{rpcport}", data=payload, timeout=0.5)
+        payload = json.dumps(
+            {"jsonrpc": "2.0", "method": f"{method_name}", "params": params, "id": 0})
+        result = requests.post(f"http://rpcuser:rpcpassword@127.0.0.1:{rpcport}", data=payload,
+                               timeout=10.0)
         result.raise_for_status()
         return result
     except requests.exceptions.HTTPError as e:

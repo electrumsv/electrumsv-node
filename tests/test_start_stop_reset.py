@@ -1,6 +1,5 @@
 import logging
 import os
-import shutil
 import time
 from pathlib import Path
 
@@ -23,18 +22,14 @@ def test_start_stop_reset():
         electrumsv_node.stop()
         electrumsv_node.start()
         electrumsv_node.stop()
-        try:
-            electrumsv_node.reset()
-        except FailedToStopError as e:
-            logger.debug(str(e))
-            electrumsv_node.stop()
         electrumsv_node.reset()
         assert True
     except Exception as e:
+        electrumsv_node.stop()
         raise e
 
 
-def test_start_new_instances():
+def test_multiple_instances():
     data_path1 = MODULE_DIR.joinpath("datadir1")
     rpcport1 =  20000
     p2p_port1 = 20001
