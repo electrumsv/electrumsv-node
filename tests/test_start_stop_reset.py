@@ -34,7 +34,7 @@ def test_start_stop_reset():
         raise e
 
 
-def test_start_new_instances():
+def test_multiple_instances():
     data_path1 = MODULE_DIR.joinpath("datadir1")
     rpcport1 =  20000
     p2p_port1 = 20001

@@ -127,7 +127,6 @@ def stop(first_attempt: bool=True, rpcport: Optional[int]=18332):
         result = requests.post(f"http://rpcuser:rpcpassword@127.0.0.1:{rpcport}", data=payload, timeout=0.5)
         result.raise_for_status()
         logger.debug("bitcoin daemon stopped.")
-        return result
     except Exception as e:
         if first_attempt:
             logger.error(str(e) + " Retrying after 1 second in case it is still waking up...")
@@ -135,6 +134,7 @@ def stop(first_attempt: bool=True, rpcport: Optional[int]=18332):
             stop(first_attempt=False, rpcport=rpcport)
         else:
             logger.error(str(e))
+            return
         logger.error(str(e))
 
 
