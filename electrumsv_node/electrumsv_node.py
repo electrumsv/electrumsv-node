@@ -5,7 +5,7 @@ import shutil
 import signal
 import subprocess
 import sys
-from typing import Optional
+from typing import Iterable, Optional
 import requests
 import time
 
@@ -61,7 +61,7 @@ def is_running(rpcport: Optional[int]=18332) -> bool:
 def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
            rpcport: Optional[int]=18332, rpcuser: Optional[str]='rpcuser',
            rpcpassword: Optional[str]='rpcpassword', network: Optional[str]='regtest',
-           p2p_port: Optional[int]=18444) -> int:
+           p2p_port: Optional[int]=18444, extra_params: Optional[Iterable[str]]=None) -> int:
     global DEFAULT_DATA_PATH
     split_command = [BITCOIND_PATH]
     valid_networks = {'regtest', 'testnet', 'stn', 'main'}
@@ -80,8 +80,11 @@ def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
         f"-rpcuser={rpcuser}",
         f"-rpcpassword={rpcpassword}",
         f"-rpcport={rpcport}",
-        f"-port={p2p_port}"
+        f"-port={p2p_port}",
+        f"-rest"
     ])
+    if extra_params is not None:
+        split_command.extend(extra_params)
 
     proc: subprocess.Popen
     if sys.platform == "win32":
