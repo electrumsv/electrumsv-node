@@ -33,13 +33,17 @@ def test_multiple_instances():
     data_path1 = MODULE_DIR.joinpath("datadir1")
     rpcport1 =  20000
     p2p_port1 = 20001
+    zmq_port1 = 20002
 
     data_path2 = MODULE_DIR.joinpath("datadir2")
-    rpcport2 =  20002
-    p2p_port2 = 20003
+    rpcport2 =  22000
+    p2p_port2 = 22001
+    zmq_port2 = 22003
     try:
-        electrumsv_node.start(data_path=data_path1, rpcport=rpcport1, p2p_port=p2p_port1)
-        electrumsv_node.start(data_path=data_path2, rpcport=rpcport2, p2p_port=p2p_port2)
+        electrumsv_node.start(data_path=data_path1, rpcport=rpcport1, p2p_port=p2p_port1,
+            zmq_port=zmq_port1)
+        electrumsv_node.start(data_path=data_path2, rpcport=rpcport2, p2p_port=p2p_port2,
+            zmq_port=zmq_port2)
         time.sleep(5)
         result1 = call_any("getinfo", rpcport=rpcport1)
         result2 = call_any("getinfo", rpcport=rpcport2)

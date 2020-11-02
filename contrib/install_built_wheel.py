@@ -23,6 +23,8 @@ def main():
         py_version = 'cp37-cp37m'
     elif sys.version_info.major == 3 and sys.version_info.minor == 8:
         py_version = 'cp38-cp38'
+    elif sys.version_info.major == 3 and sys.version_info.minor == 9:
+        py_version = 'cp39-cp39'
 
     wheel_path = None
     if sys.platform == 'linux':

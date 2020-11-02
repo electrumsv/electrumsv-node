@@ -21,16 +21,17 @@ jobs:
   pool: {vmImage: 'ubuntu-latest'}
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
+  timeoutInMinutes: 120
   steps:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: 3.7
     - bash: |
-        export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64"
+        export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==1.5.5
+        pip3 install cibuildwheel==1.6.4
         cibuildwheel --output-dir wheelhouse .
       displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
@@ -50,10 +51,10 @@ jobs:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
   steps:
     - script: |
-        export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64"
+        export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64 cp39-macosx_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==1.5.5
+        pip3 install cibuildwheel==1.6.4
         cibuildwheel --output-dir wheelhouse .
       displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
@@ -91,10 +92,10 @@ jobs:
         key: $(vcpkgInstallParamFile) | "$(vcpkgVersion)" | "$(Agent.OS)"
         path: '$(vcpkgBinariesPath)'
     - script: |
-        set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64 cp37-win32 cp38-win32"
+        set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64 cp37-win32 cp38-win32 cp39-win_amd64 cp39-win32"
         set CIBW_BUILD_VERBOSITY=1
         py -3 -m pip install --upgrade pip
-        py -3 -m pip install cibuildwheel==1.5.5
+        py -3 -m pip install cibuildwheel==1.6.4
         py -3 -m cibuildwheel --output-dir wheelhouse .
       displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1

@@ -59,9 +59,9 @@ def is_running(rpcport: Optional[int]=18332) -> bool:
 
 # https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
 def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
-           rpcport: Optional[int]=18332, rpcuser: Optional[str]='rpcuser',
-           rpcpassword: Optional[str]='rpcpassword', network: Optional[str]='regtest',
-           p2p_port: Optional[int]=18444, zmq_port: Optional[int]=28332,
+           rpcport: int=18332, rpcuser: str='rpcuser',
+           rpcpassword: str='rpcpassword', network: str='regtest',
+           p2p_port: int=18444, zmq_port: int=28332,
            extra_params: Optional[Iterable[str]]=None) -> int:
     global DEFAULT_DATA_PATH
     split_command = [BITCOIND_PATH]
@@ -111,9 +111,9 @@ def is_node_running(rpcport: Optional[int]=18332):
 
 
 def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
-          rpcport: Optional[int]=18332, rpcuser: Optional[str]='rpcuser',
-          rpcpassword: Optional[str]='rpcpassword', network: Optional[str]='regtest',
-          p2p_port: Optional[int]=18444, zmq_port: Optional[int]=28332,
+          rpcport: int=18332, rpcuser: str='rpcuser',
+          rpcpassword: str='rpcpassword', network: str='regtest',
+          p2p_port: int=18444, zmq_port: int=28332,
           extra_params: Optional[Iterable[str]]=None) -> int:
     logger.debug("starting bitcoin node")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
@@ -134,7 +134,7 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
     raise FailedToStartError("failed to start bitcoin node")
 
 
-def stop(first_attempt: bool=True, rpcport: Optional[int]=18332):
+def stop(first_attempt: bool=True, rpcport: int=18332):
     try:
         logger.debug("stopping bitcoin node")
         assert is_running(rpcport), "bitcoin daemon is not running."
