@@ -14,7 +14,16 @@ if "%VSINSTALL_PATH%" EQU "" (
 
 REM Re-enable echo for the rest of the script.
 echo on
-call "%VSINSTALL_PATH%\VC\Auxiliary\Build\vcvars64.bat"
+if "%vcpkg.arch%" EQU "x86" (
+  set VCPKG_CMAKE_ARCH=Win32
+  call "%VSINSTALL_PATH%\VC\Auxiliary\Build\vcvars32.bat"
+) else if "%vcpkg.arch%" EQU "x64" (
+  set VCPKG_CMAKE_ARCH=x64
+  call "%VSINSTALL_PATH%\VC\Auxiliary\Build\vcvars64.bat"
+) else (
+  echo VC architecture unrecognised.
+  exit /b 1
+)
 
 echo on
 set VCPKG_ROOT=%VCPKG_INSTALLATION_ROOT%
@@ -37,8 +46,10 @@ REM warning C4996: 'fopen': This function or variable may be unsafe. Consider us
 
 REM -DBUILD_BITCOIN_WALLET=OFF
 
-%VCPKG_ROOT%\vcpkg.exe install "@%vcpkgInstallParamFile%"
-cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -Ax64 -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_BUILD_TYPE=Release -DBUILD_BITCOIN_BENCH=OFF -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
-msbuild BitcoinSV.sln /p:Configuration=Release /p:Platform="x64" /nowarn:"C4146,C4244,C4309,C4267,C4805,C4834,C4996"
+%VCPKG_ROOT%\vcpkg.exe install "@%vcpkgInstallParamPath%\%vcpkg.arch%-windows-static.txt"
+REM https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2016%202019.html
+cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DBUILD_BITCOIN_BENCH=OFF -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
+cat BitcoinSV.sln
+msbuild BitcoinSV.sln /p:Configuration=Release /p:Platform="%VCPKG_CMAKE_ARCH%" /nowarn:"C4146,C4244,C4309,C4267,C4805,C4834,C4996"
 
 popd

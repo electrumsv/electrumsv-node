@@ -42,7 +42,7 @@ def main():
             wheel_path = WHEELHOUSE_DIR.joinpath(
                 f"electrumsv_node-{version}-{py_version}-win32.whl")
 
-    subprocess.run(f"{sys.executable} -m pip install --force --no-cache {str(wheel_path)}",
+    subprocess.run(f"{sys.executable} -m pip install --force --no-cache {str(wheel_path)} --user",
                    shell=True, check=True)
 
 
