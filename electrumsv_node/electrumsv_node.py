@@ -61,7 +61,8 @@ def is_running(rpcport: Optional[int]=18332) -> bool:
 def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
            rpcport: Optional[int]=18332, rpcuser: Optional[str]='rpcuser',
            rpcpassword: Optional[str]='rpcpassword', network: Optional[str]='regtest',
-           p2p_port: Optional[int]=18444, extra_params: Optional[Iterable[str]]=None) -> int:
+           p2p_port: Optional[int]=18444, zmq_port: Optional[int]=28332,
+           extra_params: Optional[Iterable[str]]=None) -> int:
     global DEFAULT_DATA_PATH
     split_command = [BITCOIND_PATH]
     valid_networks = {'regtest', 'testnet', 'stn', 'main'}
@@ -81,7 +82,11 @@ def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
         f"-rpcpassword={rpcpassword}",
         f"-rpcport={rpcport}",
         f"-port={p2p_port}",
-        f"-rest"
+        "-rest",
+        f"-zmqpubrawtx=tcp://127.0.0.1:{zmq_port}",
+        f"-zmqpubrawblock=tcp://127.0.0.1:{zmq_port}",
+        f"-zmqpubhashtx=tcp://127.0.0.1:{zmq_port}",
+        f"-zmqpubhashblock=tcp://127.0.0.1:{zmq_port}"
     ])
     if extra_params is not None:
         split_command.extend(extra_params)
@@ -108,9 +113,11 @@ def is_node_running(rpcport: Optional[int]=18332):
 def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
           rpcport: Optional[int]=18332, rpcuser: Optional[str]='rpcuser',
           rpcpassword: Optional[str]='rpcpassword', network: Optional[str]='regtest',
-          p2p_port: Optional[int]=18444) -> int:
+          p2p_port: Optional[int]=18444, zmq_port: Optional[int]=28332,
+          extra_params: Optional[Iterable[str]]=None) -> int:
     logger.debug("starting bitcoin node")
-    pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port)
+    pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
+        zmq_port, extra_params)
     if is_node_running(rpcport):
         time.sleep(1)  # Avoids failure of stop() if called immediately afterwards
         logger.info("bitcoin node online")
@@ -118,7 +125,8 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
 
     # sometimes the node is still shutting down from a previous run
     logger.debug("starting the bitcoin node failed - retrying...")
-    pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port)
+    pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
+        zmq_port, extra_params)
     if is_node_running(rpcport):
         time.sleep(1)  # Avoids failure of stop() if called immediately afterwards
         logger.info("bitcoin node online")
