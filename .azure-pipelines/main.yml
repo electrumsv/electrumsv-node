@@ -22,12 +22,20 @@ jobs:
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
   timeoutInMinutes: 120
+  strategy:
+    matrix:
+      Python37:
+        python.version: 'cp37'
+      Python38:
+        python.version: 'cp38'
+      Python39:
+        python.version: 'cp39'
   steps:
     - task: UsePythonVersion@0
       inputs:
         versionSpec: 3.7
     - bash: |
-        export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
+        export "CIBW_BUILD=$(python.version)-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
@@ -49,9 +57,17 @@ jobs:
   pool: {vmImage: 'macos-10.15'}
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
+  strategy:
+    matrix:
+      Python37:
+        python.version: 'cp37'
+      Python38:
+        python.version: 'cp38'
+      Python39:
+        python.version: 'cp39'
   steps:
     - script: |
-        export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64 cp39-macosx_x86_64"
+        export "CIBW_BUILD=$(python.version)-macosx_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         python3 -m pip install --upgrade pip
         pip3 install cibuildwheel==1.6.4
@@ -81,6 +97,14 @@ jobs:
     vcpkgInstallParamFile: '$(Build.SourcesDirectory)/.azure-pipelines/vcpkg/x64-windows-static.txt'
     vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
   timeoutInMinutes: 120
+  strategy:
+    matrix:
+      Python37:
+        python.version: 'cp37'
+      Python38:
+        python.version: 'cp38'
+      Python39:
+        python.version: 'cp39'
   steps:
     - task: UsePythonVersion@0
       inputs:
@@ -92,7 +116,7 @@ jobs:
         key: $(vcpkgInstallParamFile) | "$(vcpkgVersion)" | "$(Agent.OS)"
         path: '$(vcpkgBinariesPath)'
     - script: |
-        set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64 cp37-win32 cp38-win32 cp39-win_amd64 cp39-win32"
+        set "CIBW_BUILD=$(python.version)-win_amd64 $(python.version)-win32"
         set CIBW_BUILD_VERBOSITY=1
         py -3 -m pip install --upgrade pip
         py -3 -m pip install cibuildwheel==1.6.4
