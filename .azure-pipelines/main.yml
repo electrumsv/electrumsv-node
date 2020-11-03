@@ -22,12 +22,25 @@ jobs:
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
   timeoutInMinutes: 120
+  # Until we have the boost build cached for centos7 in the same way vcpkg is cached for
+  # Windows, this build will take ages doing it. So we need to split it up.
+  strategy:
+    matrix:
+      Python37:
+        package.version: 'cp37'
+        python.version: '3.7'
+      Python38:
+        package.version: 'cp38'
+        python.version: '3.8'
+      Python39:
+        package.version: 'cp39'
+        python.version: '3.9'
   steps:
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: 3.7
+        versionSpec: '$(python.version)'
     - bash: |
-        export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
+        export "CIBW_BUILD=$(package.version)-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
