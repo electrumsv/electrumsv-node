@@ -5,7 +5,7 @@ import shutil
 import signal
 import subprocess
 import sys
-from typing import Iterable, Optional
+from typing import Iterable, Optional, List
 import requests
 import time
 
@@ -57,18 +57,20 @@ def is_running(rpcport: Optional[int]=18332) -> bool:
         return False
 
 
-# https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
-def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
-           rpcport: int=18332, rpcuser: str='rpcuser',
-           rpcpassword: str='rpcpassword', network: str='regtest',
-           p2p_port: int=18444, zmq_port: int=28332,
-           extra_params: Optional[Iterable[str]]=None) -> int:
+def shell_command(config_path: Optional[str] = None, data_path: Optional[str] = None,
+        rpcport: int = 18332, rpcuser: str = 'rpcuser',
+        rpcpassword: str = 'rpcpassword', network: str = 'regtest',
+        p2p_port: int = 18444, zmq_port: int = 28332,
+        print_to_console: bool = False, extra_params: Optional[Iterable[str]] = None) -> List:
     global DEFAULT_DATA_PATH
     split_command = [BITCOIND_PATH]
     valid_networks = {'regtest', 'testnet', 'stn', 'main'}
     assert network in valid_networks, f"must select 'network' from {valid_networks}"
     if network != 'main':
         split_command.append(f"-{network}")
+
+    if print_to_console:
+        split_command.append(f"-printtoconsole=1")
 
     if config_path is None:
         config_path = os.path.join(FILE_PATH, "bitcoin.conf")
@@ -94,6 +96,25 @@ def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
     proc: subprocess.Popen
     if sys.platform == "win32":
         split_command[0] = f"\"{split_command[0]}\""
+        return split_command
+    elif sys.platform in ("darwin", "linux"):
+        return split_command
+    else:
+        raise UnknownPlatformError(sys.platform)
+
+
+# https://stackoverflow.com/questions/1196074/how-to-start-a-background-process-in-python
+def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
+           rpcport: int=18332, rpcuser: str='rpcuser',
+           rpcpassword: str='rpcpassword', network: str='regtest',
+           p2p_port: int=18444, zmq_port: int=28332,
+           print_to_console: bool=False, extra_params: Optional[Iterable[str]]=None) -> int:
+
+    split_command = shell_command(config_path, data_path, rpcport, rpcuser, rpcpassword, network,
+        p2p_port, zmq_port, print_to_console, extra_params)
+
+    proc: subprocess.Popen
+    if sys.platform == "win32":
         proc = subprocess.Popen(" ".join(split_command), creationflags=subprocess.DETACHED_PROCESS)
     elif sys.platform in ("darwin", "linux"):
         proc = subprocess.Popen(split_command)
@@ -114,10 +135,10 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
           rpcport: int=18332, rpcuser: str='rpcuser',
           rpcpassword: str='rpcpassword', network: str='regtest',
           p2p_port: int=18444, zmq_port: int=28332,
-          extra_params: Optional[Iterable[str]]=None) -> int:
+          print_to_console: bool=False, extra_params: Optional[Iterable[str]]=None) -> int:
     logger.debug("starting bitcoin node")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
-        zmq_port, extra_params)
+        zmq_port, print_to_console, extra_params)
     if is_node_running(rpcport):
         time.sleep(1)  # Avoids failure of stop() if called immediately afterwards
         logger.info("bitcoin node online")
@@ -126,7 +147,7 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
     # sometimes the node is still shutting down from a previous run
     logger.debug("starting the bitcoin node failed - retrying...")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
-        zmq_port, extra_params)
+        zmq_port, print_to_console, extra_params)
     if is_node_running(rpcport):
         time.sleep(1)  # Avoids failure of stop() if called immediately afterwards
         logger.info("bitcoin node online")
