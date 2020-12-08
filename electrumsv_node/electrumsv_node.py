@@ -46,12 +46,13 @@ def _locate_default_data_path() -> str:
 DEFAULT_DATA_PATH = _locate_default_data_path()
 
 
-def is_running(rpcport: Optional[int]=18332) -> bool:
+def is_running(rpcport: int=18332, rpchost: str="127.0.0.1", rpcuser:
+        str="rpcuser", rpcpassword: str="rpcpassword") -> bool:
     try:
         payload = json.dumps({"jsonrpc": "2.0", "method": "getinfo", "params": [], "id": 0})
-        result = requests.post(f"http://rpcuser:rpcpassword@127.0.0.1:{rpcport}", data=payload, timeout=0.5)
+        result = requests.post(f"http://{rpcuser}:{rpcpassword}@{rpchost}:{rpcport}", data=payload,
+            timeout=0.5)
         result.raise_for_status()
-        # print(result.json())
         return True
     except Exception:
         return False
@@ -62,6 +63,10 @@ def shell_command(config_path: Optional[str] = None, data_path: Optional[str] = 
         rpcpassword: str = 'rpcpassword', network: str = 'regtest',
         p2p_port: int = 18444, zmq_port: int = 28332,
         print_to_console: bool = False, extra_params: Optional[Iterable[str]] = None) -> List:
+    """
+    Generates the full shell command needed to launch the bitcoin daemon with the desired
+    configuration
+    """
     global DEFAULT_DATA_PATH
     split_command = [BITCOIND_PATH]
     valid_networks = {'regtest', 'testnet', 'stn', 'main'}
@@ -123,10 +128,11 @@ def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
     return proc.pid
 
 
-def is_node_running(rpcport: Optional[int]=18332):
+def is_node_running(rpcport: int=18332, rpchost: str="127.0.0.1", rpcuser: str="rpcuser",
+        rpcpassword: str="rpcpassword"):
     for timeout in [1] * 5:
         logger.debug("polling bitcoin node...")
-        if is_running(rpcport):
+        if is_running(rpcport, rpchost, rpcuser, rpcpassword):
             return True
         time.sleep(timeout)
 
@@ -136,10 +142,14 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
           rpcpassword: str='rpcpassword', network: str='regtest',
           p2p_port: int=18444, zmq_port: int=28332,
           print_to_console: bool=False, extra_params: Optional[Iterable[str]]=None) -> int:
+    """
+    Can only start a node from localhost / the same machine - remote access is only
+    supported for RPC commands - namely in the case of dockerization
+    """
     logger.debug("starting bitcoin node")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
         zmq_port, print_to_console, extra_params)
-    if is_node_running(rpcport):
+    if is_node_running(rpcport, "127.0.0.1", rpcuser, rpcpassword):
         time.sleep(1)  # Avoids failure of stop() if called immediately afterwards
         logger.info("bitcoin node online")
         return pid
@@ -148,35 +158,39 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
     logger.debug("starting the bitcoin node failed - retrying...")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
         zmq_port, print_to_console, extra_params)
-    if is_node_running(rpcport):
+    if is_node_running(rpcport, "127.0.0.1", rpcuser, rpcpassword):
         time.sleep(1)  # Avoids failure of stop() if called immediately afterwards
         logger.info("bitcoin node online")
         return pid
     raise FailedToStartError("failed to start bitcoin node")
 
 
-def stop(first_attempt: bool=True, rpcport: int=18332):
+def stop(first_attempt: bool=True, rpcport: int=18332, rpchost: str="127.0.0.1",
+        rpcuser: str="rpcuser", rpcpassword: str="rpcpassword"):
     try:
         logger.debug("stopping bitcoin node")
-        assert is_running(rpcport), "bitcoin daemon is not running."
+        assert is_running(rpcport, rpchost, rpcuser, rpcpassword), "bitcoin daemon is not running."
         payload = json.dumps({"jsonrpc": "2.0", "method": "stop", "params": [], "id": 0})
-        result = requests.post(f"http://rpcuser:rpcpassword@127.0.0.1:{rpcport}", data=payload, timeout=0.5)
+        result = requests.post(f"http://{rpcuser}:{rpcpassword}@{rpchost}:{rpcport}", data=payload,
+            timeout=0.5)
         result.raise_for_status()
         logger.debug("bitcoin daemon stopped.")
     except Exception as e:
         if first_attempt:
             logger.error(str(e) + " Retrying after 1 second in case it is still waking up...")
             time.sleep(1)
-            stop(first_attempt=False, rpcport=rpcport)
+            stop(first_attempt=False, rpcport=rpcport, rpchost=rpchost, rpcuser=rpcuser,
+                rpcpassword=rpcpassword)
         else:
             logger.error(str(e))
             return
         logger.error(str(e))
 
 
-def is_node_stopped(rpcport):
+def is_node_stopped(rpcport: int=18332, rpchost: str="127.0.0.1", rpcuser: str="rpcuser",
+        rpcpassword: str="rpcpassword"):
     for timeout in (3, 3, 3):
-        if is_running(rpcport):
+        if is_running(rpcport, rpchost, rpcuser, rpcpassword):
             logger.error("the bitcoin daemon must be shutdown to reset - retrying in 3 seconds")
             time.sleep(timeout)
         else:
@@ -184,12 +198,14 @@ def is_node_stopped(rpcport):
     return False
 
 
-def reset(data_path: Optional[str]=None, rpcport: Optional[int]=18332):
+def reset(data_path: Optional[str]=None, rpcport: int=18332, rpcuser: str="rpcuser",
+        rpcpassword: str="rpcpassword"):
+    """can only reset on localhost i.e. the same machine that the node is running on"""
     if data_path is None:
         data_path = DEFAULT_DATA_PATH
     try:
         logger.debug("resetting state of RegTest bitcoin daemon...")
-        if not is_node_stopped(rpcport):
+        if not is_node_stopped(rpcport, "127.0.0.1", rpcuser, rpcpassword):
             logger.error("the bitcoin daemon must be shutdown to reset - reached max reattempts")
             raise FailedToStopError("node is not stopped - try stopping the node before "
                 "resetting")
@@ -204,7 +220,9 @@ def reset(data_path: Optional[str]=None, rpcport: Optional[int]=18332):
         raise
 
 
-def call_any(method_name: str, *args, rpcport: Optional[int]=18332):
+def call_any(method_name: str, *args, rpcport: int=18332, rpchost: str="127.0.0.1", rpcuser:
+        str="rpcuser", rpcpassword: str="rpcpassword"):
+    """Send an RPC request to the specified bitcoin node"""
     result = None
     try:
         if not args:
@@ -213,7 +231,7 @@ def call_any(method_name: str, *args, rpcport: Optional[int]=18332):
             params = [*args]
         payload = json.dumps(
             {"jsonrpc": "2.0", "method": f"{method_name}", "params": params, "id": 0})
-        result = requests.post(f"http://rpcuser:rpcpassword@127.0.0.1:{rpcport}", data=payload,
+        result = requests.post(f"http://{rpcuser}:{rpcpassword}@{rpchost}:{rpcport}", data=payload,
                                timeout=10.0)
         result.raise_for_status()
         return result

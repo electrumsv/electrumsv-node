@@ -4,7 +4,7 @@ import time
 from pathlib import Path
 
 from electrumsv_node import electrumsv_node
-from electrumsv_node.electrumsv_node import call_any, FailedToStopError
+from electrumsv_node.electrumsv_node import call_any
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -49,14 +49,20 @@ def test_multiple_instances():
         result2 = call_any("getinfo", rpcport=rpcport2)
         result1.json()
         result2.json()
-        electrumsv_node.stop(rpcport=rpcport1)
-        electrumsv_node.stop(rpcport=rpcport2)
-        electrumsv_node.reset(data_path=data_path1, rpcport=rpcport1)
-        electrumsv_node.reset(data_path=data_path2, rpcport=rpcport2)
+        electrumsv_node.stop(rpcport=rpcport1, rpchost="127.0.0.1", rpcuser="rpcuser",
+            rpcpassword="rpcpassword")
+        electrumsv_node.stop(rpcport=rpcport2, rpchost="127.0.0.1", rpcuser="rpcuser",
+            rpcpassword="rpcpassword")
+        electrumsv_node.reset(data_path=data_path1, rpcport=rpcport1, rpcuser="rpcuser",
+            rpcpassword="rpcpassword")
+        electrumsv_node.reset(data_path=data_path2, rpcport=rpcport2, rpcuser="rpcuser",
+            rpcpassword="rpcpassword")
         assert True
     except Exception as e:
-        electrumsv_node.stop(rpcport=rpcport1)
-        electrumsv_node.stop(rpcport=rpcport2)
+        electrumsv_node.stop(rpcport=rpcport1, rpchost="127.0.0.1", rpcuser="rpcuser",
+            rpcpassword="rpcpassword")
+        electrumsv_node.stop(rpcport=rpcport2, rpchost="127.0.0.1", rpcuser="rpcuser",
+            rpcpassword="rpcpassword")
         raise e
 
 
@@ -64,13 +70,16 @@ def test_call_any(method_name='help', *args):
     try:
         electrumsv_node.start()
         time.sleep(5)
-        result = call_any(method_name, *args)
+        result = call_any(method_name, *args, rpcport=18332, rpchost="127.0.0.1", rpcuser="rpcuser",
+            rpcpassword="rpcpassword")
         print(result.json()['result'])
         time.sleep(5)
-        electrumsv_node.stop()
+        electrumsv_node.stop(rpcport=18332, rpchost="127.0.0.1", rpcuser="rpcuser",
+            rpcpassword="rpcpassword")
         assert True
     except Exception as e:
         raise e
+
 
 # test_call_any("generate", 10)
 # test_call_any("help")
