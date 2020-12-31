@@ -17,105 +17,112 @@ trigger:
     exclude: [ 'README.md' ]
 
 jobs:
-- job: Linux
-  pool: {vmImage: 'ubuntu-latest'}
-  variables:
-    BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
-  timeoutInMinutes: 120
-  # Until we have the boost build cached for centos7 in the same way vcpkg is cached for
-  # Windows, this build will take ages doing it. So we need to split it up.
-  strategy:
-    matrix:
-      Python37:
-        package.version: 'cp37'
-        python.version: '3.7'
-      Python38:
-        package.version: 'cp38'
-        python.version: '3.8'
-      Python39:
-        package.version: 'cp39'
-        python.version: '3.9'
+- job: PrepareLinuxBuild
+  pool:
+    vmImage: 'ubuntu-18.04'
+  container: nchain/buildtools:build-sv-centos7.3
   steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '$(python.version)'
-    - bash: |
-        export "CIBW_BUILD=$(package.version)-manylinux_x86_64"
-        export CIBW_BUILD_VERBOSITY=1
-        export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
-        python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==1.6.4
-        cibuildwheel --output-dir wheelhouse .
-      displayName: Build Bitcoin SV (autotools) / Python packaging
-    - task: PublishBuildArtifacts@1
-      inputs:
-        artifactName: 'Linux'
-        pathtoPublish: 'wheelhouse'
-    - script: |
-        python3 -m pip install pytest pytest-cov wheel --user
-        python3 ./contrib/install_built_wheel.py wheelhouse
-        cd tests
-        python3 -m pytest -v -v -v .
-      displayName: Install from wheel and run tests
+    - script: printenv
 
-- job: MacOS
-  pool: {vmImage: 'macos-10.15'}
-  variables:
-    BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
-  steps:
-    - script: |
-        export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64 cp39-macosx_x86_64"
-        export CIBW_BUILD_VERBOSITY=1
-        python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==1.6.4
-        cibuildwheel --output-dir wheelhouse .
-      displayName: Build Bitcoin SV (autotools) / Python packaging
-    - task: PublishBuildArtifacts@1
-      inputs:
-        artifactName: 'MacOS'
-        pathtoPublish: 'wheelhouse'
-    - script: |
-        python3 -m pip install pytest pytest-cov wheel --user
-        python3 ./contrib/install_built_wheel.py wheelhouse
-        cd tests
-        python3 -m pytest -v -v -v .
-      displayName: Install from wheel and run tests
-
-- job: Windows
-  pool: {vmImage: 'windows-latest'}
-  variables:
-    BSV_BUILD_PATH: '$(Build.BinariesDirectory)\bitcoin-sv-windows'
-    vcpkgVersion: 2020.06.15
-    vcpkgInstallParamPath: '$(Build.SourcesDirectory)\.azure-pipelines\vcpkg'
-    vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
-    # 32 bit is not supported for the node, see src/config.h "32 bit systems are not supported"
-    vcpkg.arch: 'x64' # 'x86'
-  timeoutInMinutes: 120
-  steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: 3.7
-        architecture: x86
-    - task: Cache@2
-      displayName: Cache vcpkg
-      inputs:
-        key: $(vcpkgInstallParamPath)\$(vcpkg.arch)-windows-static.txt | "$(vcpkg.arch)" | "$(vcpkgVersion)" | "$(Agent.OS)"
-        path: '$(vcpkgBinariesPath)'
-    - script: |
-        set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64 cp39-win_amd64 cp37-win32 cp38-win32 cp39-win32"
-        set CIBW_BUILD_VERBOSITY=1
-        set CIBW_ENVIRONMENT=vcpkg.arch=$(vcpkg.arch)
-        py -3 -m pip install --upgrade pip
-        py -3 -m pip install cibuildwheel==1.6.4
-        py -3 -m cibuildwheel --output-dir wheelhouse .
-      displayName: Build Bitcoin SV (autotools) / Python packaging
-    - task: PublishBuildArtifacts@1
-      inputs:
-        artifactName: 'Windows'
-        pathtoPublish: 'wheelhouse'
-    - script: |
-        py -3 -m pip install pytest pytest-cov wheel --user
-        py -3 ./contrib/install_built_wheel.py wheelhouse
-        cd tests
-        py -3 -m pytest -v -v -v .
-      displayName: Install from wheel and run tests
+#- job: Linux
+#  pool: {vmImage: 'ubuntu-latest'}
+#  variables:
+#    BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
+#  timeoutInMinutes: 120
+#  # Until we have the boost build cached for centos7 in the same way vcpkg is cached for
+#  # Windows, this build will take ages doing it. So we need to split it up.
+#  strategy:
+#    matrix:
+#      Python37:
+#        package.version: 'cp37'
+#        python.version: '3.7'
+#      Python38:
+#        package.version: 'cp38'
+#        python.version: '3.8'
+#      Python39:
+#        package.version: 'cp39'
+#        python.version: '3.9'
+#  steps:
+#    - task: UsePythonVersion@0
+#      inputs:
+#        versionSpec: '$(python.version)'
+#    - bash: |
+#        export "CIBW_BUILD=$(package.version)-manylinux_x86_64"
+#        export CIBW_BUILD_VERBOSITY=1
+#        export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
+#        python3 -m pip install --upgrade pip
+#        pip3 install cibuildwheel==1.6.4
+#        cibuildwheel --output-dir wheelhouse .
+#      displayName: Build Bitcoin SV (autotools) / Python packaging
+#    - task: PublishBuildArtifacts@1
+#      inputs:
+#        artifactName: 'Linux'
+#        pathtoPublish: 'wheelhouse'
+#    - script: |
+#        python3 -m pip install pytest pytest-cov wheel --user
+#        python3 ./contrib/install_built_wheel.py wheelhouse
+#        cd tests
+#        python3 -m pytest -v -v -v .
+#      displayName: Install from wheel and run tests
+#
+#- job: MacOS
+#  pool: {vmImage: 'macos-10.15'}
+#  variables:
+#    BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
+#  steps:
+#    - script: |
+#        export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64 cp39-macosx_x86_64"
+#        export CIBW_BUILD_VERBOSITY=1
+#        python3 -m pip install --upgrade pip
+#        pip3 install cibuildwheel==1.6.4
+#        cibuildwheel --output-dir wheelhouse .
+#      displayName: Build Bitcoin SV (autotools) / Python packaging
+#    - task: PublishBuildArtifacts@1
+#      inputs:
+#        artifactName: 'MacOS'
+#        pathtoPublish: 'wheelhouse'
+#    - script: |
+#        python3 -m pip install pytest pytest-cov wheel --user
+#        python3 ./contrib/install_built_wheel.py wheelhouse
+#        cd tests
+#        python3 -m pytest -v -v -v .
+#      displayName: Install from wheel and run tests
+#
+#- job: Windows
+#  pool: {vmImage: 'windows-latest'}
+#  variables:
+#    BSV_BUILD_PATH: '$(Build.BinariesDirectory)\bitcoin-sv-windows'
+#    vcpkgVersion: 2020.06.15
+#    vcpkgInstallParamPath: '$(Build.SourcesDirectory)\.azure-pipelines\vcpkg'
+#    vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
+#    # 32 bit is not supported for the node, see src/config.h "32 bit systems are not supported"
+#    vcpkg.arch: 'x64' # 'x86'
+#  timeoutInMinutes: 120
+#  steps:
+#    - task: UsePythonVersion@0
+#      inputs:
+#        versionSpec: 3.7
+#        architecture: x86
+#    - task: Cache@2
+#      displayName: Cache vcpkg
+#      inputs:
+#        key: $(vcpkgInstallParamPath)\$(vcpkg.arch)-windows-static.txt | "$(vcpkg.arch)" | "$(vcpkgVersion)" | "$(Agent.OS)"
+#        path: '$(vcpkgBinariesPath)'
+#    - script: |
+#        set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64 cp39-win_amd64 cp37-win32 cp38-win32 cp39-win32"
+#        set CIBW_BUILD_VERBOSITY=1
+#        set CIBW_ENVIRONMENT=vcpkg.arch=$(vcpkg.arch)
+#        py -3 -m pip install --upgrade pip
+#        py -3 -m pip install cibuildwheel==1.6.4
+#        py -3 -m cibuildwheel --output-dir wheelhouse .
+#      displayName: Build Bitcoin SV (autotools) / Python packaging
+#    - task: PublishBuildArtifacts@1
+#      inputs:
+#        artifactName: 'Windows'
+#        pathtoPublish: 'wheelhouse'
+#    - script: |
+#        py -3 -m pip install pytest pytest-cov wheel --user
+#        py -3 ./contrib/install_built_wheel.py wheelhouse
+#        cd tests
+#        py -3 -m pytest -v -v -v .
+#      displayName: Install from wheel and run tests

@@ -63,12 +63,8 @@ elif sys.platform == 'win32':
         shutil.copy(binary_path, package_bin_path)
 
 elif sys.platform == 'linux':
-    # Manylinux compilation is on Centos 6, and requires manual building of boost.
-    # We would really want to have a pre-configured docker image with it present to make it
-    # rather than faking it as we do locally.
-
-    if not os.path.exists(BSV_BUILD_PATH):
-        subprocess.run(f"contrib/build/linux-build.sh {BSV_BUILD_PATH}", shell=True)
+    # Uses the nchain centos7.3 docker image to build the bitcoind binary files in a preparatory
+    # step of azure pipelines
     if not os.path.exists(BSV_BUILD_PATH):
         sys.exit("Failed to locate the Bitcoin SV build directory")
 
