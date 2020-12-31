@@ -63,7 +63,7 @@ elif sys.platform == 'win32':
         shutil.copy(binary_path, package_bin_path)
 
 elif sys.platform == 'linux':
-    # Uses the nchain centos7.3 docker image to build the bitcoind binary files in a preparatory
+    # Uses the a docker image to build the bitcoind binary files in a preparatory
     # step of azure pipelines
     if not os.path.exists(BSV_BUILD_PATH):
         sys.exit("Failed to locate the Bitcoin SV build directory")
