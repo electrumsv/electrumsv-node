@@ -20,9 +20,12 @@ jobs:
 - job: PrepareLinuxBuild
   pool:
     vmImage: 'ubuntu-18.04'
-  container: nchain/buildtools:build-sv-centos7.3
   steps:
-    - script: printenv
+    - script: |
+        git clone https://github.com/bitcoin-sv/bitcoin-sv.git
+        cd bitcoin-sv
+        docker build --file ./contrib/nchain/devops/Dockerfile .
+
 
 #- job: Linux
 #  pool: {vmImage: 'ubuntu-latest'}
