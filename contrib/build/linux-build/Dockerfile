@@ -2,9 +2,8 @@
 # Adapted from https://github.com/bitcoin-sv/bitcoin-sv/blob/master/contrib/nchain/devops/Dockerfile
 # This base image has been pushed to dockerhub at:
 # https://hub.docker.com/repository/docker/electrumsvsdk/node-builder-base
-FROM ubuntu:bionic
-RUN apt-get update &&   \
-    apt-get -y install  \
+FROM centos:7
+RUN yum -y install  \
        libboost-all-dev \
        libdb-dev        \
        libdb++-dev      \
@@ -29,7 +28,6 @@ RUN apt-get update &&   \
 
 
 RUN pip3 install requests pyzmq rpyc
-RUN cpanm PerlIO::gzip
+#RUN cpanm PerlIO::gzip
 RUN cpanm JSON
 RUN cpanm Term::ReadLine
-CMD sleep 10000000000
