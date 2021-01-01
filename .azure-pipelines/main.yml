@@ -41,16 +41,15 @@ jobs:
         ./configure --enable-zmq --disable-tests --disable-bench
         make
         popd
-        echo $(BSV_BUILD_PATH)
         ls $(BSV_BUILD_PATH)/src
-        cp -r $(BSV_BUILD_PATH) /home/vsts/work/1/s/build
+        mkdir -p /home/vsts/work/1/s/build
+        cp -r $(BSV_BUILD_PATH)/* /home/vsts/work/1/s/build
       target: node_builder
       displayName: Build Bitcoin SV Node
     - task: UsePythonVersion@0
       inputs:
         versionSpec: 3.7
     - bash: |
-        pwd
         ls -a $(BSV_BUILD_PATH)
         python3 contrib/build/linux-build/linux-build.py
         export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
