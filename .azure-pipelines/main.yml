@@ -42,7 +42,8 @@ jobs:
         make
         popd
         echo $(BSV_BUILD_PATH)
-        ls $(BSV_BUILD_PATH)
+        ls $(BSV_BUILD_PATH)/src
+        cp -r $(BSV_BUILD_PATH) /home/vsts/work/1/s/build
       target: node_builder
       displayName: Build Bitcoin SV Node
     - task: UsePythonVersion@0

@@ -66,7 +66,7 @@ elif sys.platform == 'linux':
     # Uses the a docker image to build the bitcoind binary files in a preparatory
     # step of azure pipelines
     if not os.path.exists(BSV_BUILD_PATH):
-        sys.exit("Failed to locate the Bitcoin SV build directory")
+        sys.exit(f"Failed to locate the Bitcoin SV build directory: {BSV_BUILD_PATH}")
 
     for target_name in target_names:
         artifact_path = os.path.join(BSV_BUILD_PATH, "src", target_name)
