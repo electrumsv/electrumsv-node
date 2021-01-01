@@ -16,45 +16,40 @@ trigger:
   paths:
     exclude: [ 'README.md' ]
 
+resources:
+  containers:
+  - container: node_builder
+    image: electrumsvsdk/node-builder-base:latest
+
 jobs:
 - job: Linux
   pool:
     vmImage: 'ubuntu-18.04'
 
-  container: electrumsvsdk/node-builder-base:latest
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-ubuntu18'
   timeoutInMinutes: 120
-  strategy:
-    matrix:
-      Python37:
-        package.version: 'cp37'
-        python.version: '3.7'
-      Python38:
-        package.version: 'cp38'
-        python.version: '3.8'
-      Python39:
-        package.version: 'cp39'
-        python.version: '3.9'
   steps:
     - bash: |
         git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $(BSV_BUILD_PATH)
         pushd $(BSV_BUILD_PATH)
-        ./autogen.sh
-        ./configure --enable-zmq --disable-tests --disable-bench
-        make
+#        ./autogen.sh
+#        ./configure --enable-zmq --disable-tests --disable-bench
+#        make
         popd
+      target: node_builder
       displayName: Build Bitcoin SV Node
     - task: UsePythonVersion@0
       inputs:
         versionSpec: '$(python.version)'
     - bash: |
-        export "CIBW_BUILD=$(package.version)-manylinux_x86_64"
+        export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
         pip3 install cibuildwheel==1.6.4
         cibuildwheel --output-dir wheelhouse .
+      target: host
       displayName: Build Manylinux Wheel / Python packaging
     - task: PublishBuildArtifacts@1
       inputs:
@@ -66,7 +61,7 @@ jobs:
         cd tests
         python3 -m pytest -v -v -v .
       displayName: Install from wheel and run tests
-#
+
 #- job: MacOS
 #  pool: {vmImage: 'macos-10.15'}
 #  variables:

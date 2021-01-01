@@ -32,3 +32,4 @@ RUN pip3 install requests pyzmq rpyc
 RUN cpanm PerlIO::gzip
 RUN cpanm JSON
 RUN cpanm Term::ReadLine
+CMD sleep 10000000000
