@@ -64,14 +64,9 @@ elif sys.platform == 'win32':
 
 elif sys.platform == 'linux':
     # Uses the a docker image to build the bitcoind binary files in a preparatory
-    # step of azure pipelines
-    if not os.path.exists(BSV_BUILD_PATH):
-        sys.exit(f"Failed to locate the Bitcoin SV build directory: {BSV_BUILD_PATH}")
-
-    for target_name in target_names:
-        artifact_path = os.path.join(BSV_BUILD_PATH, "src", target_name)
-        subprocess.run(f"strip {artifact_path}", shell=True)
-        shutil.copy(artifact_path, "electrumsv_node/bin/")
+    # step of azure pipelines. Binaries are copied to the required location outside of
+    # the manylinux docker image (see contrib/build/linux-build/linux-build.py)
+    pass
 
 
 class BinaryDistribution(Distribution):

@@ -52,6 +52,7 @@ jobs:
     - bash: |
         pwd
         ls -a $(BSV_BUILD_PATH)
+        python3 contrib/build/linux-build/linux-build.py
         export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=3
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
