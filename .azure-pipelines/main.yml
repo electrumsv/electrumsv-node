@@ -20,6 +20,10 @@ resources:
   containers:
   - container: node_builder
     image: electrumsvsdk/node-builder-base:latest
+    # $(BSV_BUILD_PATH) expands to '/home/vsts/work/1/s' but is not defined until later...
+    # this mounts the volume from the docker image to the host agent for use by cibuildwheel
+    # notice below: target: node_builder vs target: host
+    options: -v /home/vsts/work/1/s/bitcoin-sv-ubuntu18:/home/vsts/work/1/s/build
 
 jobs:
 - job: Linux
@@ -31,20 +35,24 @@ jobs:
   timeoutInMinutes: 120
   steps:
     - bash: |
-        git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $(BSV_BUILD_PATH)
+        git clone --verbose --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $(BSV_BUILD_PATH)
         pushd $(BSV_BUILD_PATH)
         ./autogen.sh
         ./configure --enable-zmq --disable-tests --disable-bench
         make
         popd
+        echo $(BSV_BUILD_PATH)
+        ls $(BSV_BUILD_PATH)
       target: node_builder
       displayName: Build Bitcoin SV Node
     - task: UsePythonVersion@0
       inputs:
         versionSpec: 3.7
     - bash: |
+        pwd
+        ls -a $(BSV_BUILD_PATH)
         export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
-        export CIBW_BUILD_VERBOSITY=1
+        export CIBW_BUILD_VERBOSITY=3
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
         pip3 install cibuildwheel==1.6.4
