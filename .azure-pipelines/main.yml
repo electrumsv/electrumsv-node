@@ -33,15 +33,15 @@ jobs:
     - bash: |
         git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $(BSV_BUILD_PATH)
         pushd $(BSV_BUILD_PATH)
-#        ./autogen.sh
-#        ./configure --enable-zmq --disable-tests --disable-bench
-#        make
+        ./autogen.sh
+        ./configure --enable-zmq --disable-tests --disable-bench
+        make
         popd
       target: node_builder
       displayName: Build Bitcoin SV Node
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: '$(python.version)'
+        versionSpec: 3.7
     - bash: |
         export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=1
