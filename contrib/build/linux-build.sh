@@ -41,8 +41,8 @@ echo "supported distribution version: '$d_version'"
 yum install -y epel-release
 yum install -y gcc-c++ libtool make autoconf automake openssl-devel libevent-devel libdb-devel libdb-cxx-devel
 yum install centos-release-scl -y
-yum install devtoolset-7-gcc* -y
-source /opt/rh/devtoolset-7/enable
+yum install devtoolset-8-gcc* -y
+source /opt/rh/devtoolset-8/enable
 
 # boost-devel for centos 7 is 1.5 something and is lower than the minimum, need to compile..
 # python-devel is 3.6, boost will find 3.7 without devel support, so tell boost below.
@@ -59,7 +59,7 @@ echo "/opt/boost_1_70/lib" > /etc/ld.so.conf.d/boost_1_70.conf
 ldconfig
 cd ../../
 
-git clone --branch v1.0.5 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
+git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
 pushd $1
 ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
 # --disable-wallet
