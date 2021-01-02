@@ -8,6 +8,6 @@ export MACOSX_DEPLOYMENT_TARGET=10.15
 pushd $1
 ./autogen.sh
 # --disable-wallet
-./configure --disable-tests --disable-bench
+./configure --disable-tests --disable-bench --enable-zmq
 make
 popd
