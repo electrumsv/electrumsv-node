@@ -64,7 +64,7 @@ cd libevent
 wget --no-verbose https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
 tar -xzf libevent-2.1.12-stable.tar.gz
 cd libevent-2.1.12-stable
-./configure --prefix=/opt/libevent_2_1 --disable-shared
+./configure --prefix=/opt/libevent_2_1
 make install
 libtool --finish /opt/libevent_2_1
 echo "/opt/libevent_2_1/lib" > /etc/ld.so.conf.d/libevent_2_1.conf
