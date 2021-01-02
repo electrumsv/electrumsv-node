@@ -48,7 +48,7 @@ REM -DBUILD_BITCOIN_WALLET=OFF
 
 %VCPKG_ROOT%\vcpkg.exe install "@%vcpkgInstallParamPath%\%vcpkg.arch%-windows-static.txt"
 REM https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2016%202019.html
-cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DBUILD_BITCOIN_BENCH=OFF -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
+cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DBUILD_BITCOIN_BENCH=OFF -DBUILD_BITCOIN_ZMQ=ON -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
 cat BitcoinSV.sln
 msbuild BitcoinSV.sln /p:Configuration=Release /p:Platform="%VCPKG_CMAKE_ARCH%" /nowarn:"C4146,C4244,C4309,C4267,C4805,C4834,C4996"
 

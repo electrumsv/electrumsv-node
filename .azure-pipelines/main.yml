@@ -44,7 +44,7 @@ jobs:
 
         pushd $(BSV_BUILD_PATH)
         ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
-        ./configure --prefix=$(BSV_BUILD_PATH)/depends/x86_64-pc-linux-gnu --disable-tests --disable-bench
+        ./configure --prefix=$(BSV_BUILD_PATH)/depends/x86_64-pc-linux-gnu --disable-tests --disable-bench --enable-zmq
         make
         popd
       target: node_builder
