@@ -67,6 +67,7 @@ cd libevent-2.1.12-stable
 ./configure --prefix=/opt/libevent_2_1 --disable-shared
 make install
 libtool --finish /opt/libevent_2_1
+echo "/opt/libevent_2_1/lib" > /etc/ld.so.conf.d/libevent_2_1.conf
 ldconfig
 cd ../../
 
@@ -74,6 +75,10 @@ git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git
 pushd $1
 ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
 # --disable-wallet
-./configure --disable-tests --disable-bench --with-boost=/opt/boost_1_70
+
+# need to link to libevent 2.1.12 using this method:
+# # https://unix.stackexchange.com/questions/17907/why-cant-gcc-find-libevent-when-building-tmux-from-source
+DIR=/opt/libevent_2_1
+./configure --disable-tests --disable-bench --with-boost=/opt/boost_1_70 CFLAGS="-I$DIR/include" LDFLAGS="-L$DIR/lib"
 make
 popd
