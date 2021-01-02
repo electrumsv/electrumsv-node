@@ -63,19 +63,9 @@ elif sys.platform == 'win32':
         shutil.copy(binary_path, package_bin_path)
 
 elif sys.platform == 'linux':
-    # Manylinux compilation is on Centos 6, and requires manual building of boost.
-    # We would really want to have a pre-configured docker image with it present to make it
-    # rather than faking it as we do locally.
-
-    if not os.path.exists(BSV_BUILD_PATH):
-        subprocess.run(f"contrib/build/linux-build.sh {BSV_BUILD_PATH}", shell=True)
-    if not os.path.exists(BSV_BUILD_PATH):
-        sys.exit("Failed to locate the Bitcoin SV build directory")
-
-    for target_name in target_names:
-        artifact_path = os.path.join(BSV_BUILD_PATH, "src", target_name)
-        subprocess.run(f"strip {artifact_path}", shell=True)
-        shutil.copy(artifact_path, "electrumsv_node/bin/")
+    # linux is done differently via a dedicated centos7 docker image and a python script
+    # 'transfer_binaries.py' moves the binaries to the required location
+    pass
 
 
 class BinaryDistribution(Distribution):
