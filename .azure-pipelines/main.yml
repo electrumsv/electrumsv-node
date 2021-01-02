@@ -16,37 +16,51 @@ trigger:
   paths:
     exclude: [ 'README.md' ]
 
+resources:
+  containers:
+  - container: node_builder
+    image: electrumsvsdk/centos7-bitcoin-builder:latest
+
 jobs:
 - job: Linux
   pool: {vmImage: 'ubuntu-latest'}
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
   timeoutInMinutes: 120
-  # Until we have the boost build cached for centos7 in the same way vcpkg is cached for
-  # Windows, this build will take ages doing it. So we need to split it up.
-  strategy:
-    matrix:
-      Python37:
-        package.version: 'cp37'
-        python.version: '3.7'
-      Python38:
-        package.version: 'cp38'
-        python.version: '3.8'
-      Python39:
-        package.version: 'cp39'
-        python.version: '3.9'
   steps:
+    # Make libevent and other dependencies as needed from bitcoin-sv/depends directory
+    # Makes all dependencies for subsequent compilation. Can link to them via:
+    # ./configure --prefix=$(BSV_BUILD_PATH)/depends/x86_64-pc-linux-gnu
+    - bash: |
+        set -e
+        git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $(BSV_BUILD_PATH)
+        cd $(BSV_BUILD_PATH)
+        source /opt/rh/devtoolset-8/enable
+        ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
+        make
+        cd ../../
+
+        pushd $(BSV_BUILD_PATH)
+        ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
+        ./configure --prefix=$(BSV_BUILD_PATH)/depends/x86_64-pc-linux-gnu --disable-tests --disable-bench
+        make
+        popd
+      target: node_builder
+      displayName: Build Bitcoin SV Node
     - task: UsePythonVersion@0
       inputs:
-        versionSpec: '$(python.version)'
+        versionSpec: 3.7
     - bash: |
-        export "CIBW_BUILD=$(package.version)-manylinux_x86_64"
-        export CIBW_BUILD_VERBOSITY=1
+        ls -a $(BSV_BUILD_PATH)/src
+        python3 ./contrib/build/linux/transfer_binaries.py
+        export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
+        export CIBW_BUILD_VERBOSITY=3
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
         pip3 install cibuildwheel==1.6.4
         cibuildwheel --output-dir wheelhouse .
-      displayName: Build Bitcoin SV (autotools) / Python packaging
+      target: host
+      displayName: Build Manylinux Wheel / Python packaging
     - task: PublishBuildArtifacts@1
       inputs:
         artifactName: 'Linux'
