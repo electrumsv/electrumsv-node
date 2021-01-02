@@ -37,6 +37,8 @@ jobs:
         cd $(BSV_BUILD_PATH)
         source /opt/rh/devtoolset-8/enable
         ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
+        cd $(BSV_BUILD_PATH)/depends
+        ls -a
         make
         cd ../../
 
