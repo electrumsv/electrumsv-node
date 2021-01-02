@@ -28,29 +28,50 @@ To install `electrumsv-node`:
 
 To use it:
 
-    from electrumsv_node import electrumsv_node
-
+    import logging
+    import electrumsv_node
+    
     # Set logging level to debug mode to see logging information (Optional)
     logging.basicConfig(
         format="%(asctime)s %(levelname)s %(message)s",
         level=logging.DEBUG,
         datefmt="%Y-%m-%d %H-%M-%S",
     )
-
+    logger = logging.getLogger("testing")
+    
     electrumsv_node.start()
-    time.sleep(5)
+    
+    # (Optional keyword arguments)
+    # electrumsv_node.start(
+    #     data_path=</your/custom/datadir/path>,
+    #     rpcuser="rpcuser",
+    #     rpcpassword="rpcpassword",
+    #     rpcport=18332,
+    #     p2p_port=18444,
+    #     zmq_port=28332,
+    #     network='regtest',
+    #     print_to_console=True,  # feeds logging to stdout
+    #     extra_params=['-somearg1=var1', '-somearg2=var2']
+    # )
+    
+    result = electrumsv_node.call_any('getinfo')
+    logger.debug(result.json())
     electrumsv_node.stop()
-    time.sleep(5)
     electrumsv_node.reset()
+
 
 Console output will look something like this (with custom data directory):
 
-    2020-07-03 19-35-57 DEBUG starting RegTest bitcoin daemon...
-    2020-07-03 19-36-02 DEBUG stopping RegTest bitcoin daemon...
-    2020-07-03 19-36-02 DEBUG bitcoin daemon stopped.
-    2020-07-03 19-36-07 DEBUG resetting state of RegTest bitcoin daemon...
-    2020-07-03 19-36-09 DEBUG removed 'G:\electrumsv-node\electrumsv_node\data' successfully
-    2020-07-03 19-36-09 DEBUG created 'G:\electrumsv-node\electrumsv_node\data' successfully
+    2021-01-03 11-50-29 INFO starting bitcoin node
+    2021-01-03 11-50-29 DEBUG polling bitcoin node...
+    2021-01-03 11-50-31 DEBUG polling bitcoin node...
+    2021-01-03 11-50-32 INFO bitcoin node online
+    2021-01-03 11-50-32 DEBUG {'result': {'version': 101000600, 'protocolversion': 70015, 'walletversion': 160300, 'balance': 0.0, 'blocks': 0, 'timeoffset': 0, 'connections': 0, 'proxy': '', 'difficulty': 4.656542373906925e-10, 'testnet': False, 'stn': False, 'keypoololdest': 1609627830, 'keypoolsize': 2000, 'paytxfee': 0.0, 'relayfee': 2.5e-06, 'errors': 'This is a pre-release or beta test build - use at your own risk - do not use for mining or merchant applications', 'maxblocksize': 10000000000, 'maxminedblocksize': 128000000, 'maxstackmemoryusagepolicy': 100000000, 'maxstackmemoryusageconsensus': 9223372036854775807}, 'error': None, 'id': 0}
+    2021-01-03 11-50-32 DEBUG stopping bitcoin node
+    2021-01-03 11-50-32 INFO bitcoin daemon stopped.
+    2021-01-03 11-50-32 DEBUG resetting state of RegTest bitcoin daemon...
+    2021-01-03 11-50-32 ERROR the bitcoin daemon must be shutdown to reset - retrying in 3 seconds
+    2021-01-03 11-50-35 DEBUG removed 'C:\Users\donha\AppData\Local\ElectrumSV-Node' successfully
 
 ## The node data directory
 

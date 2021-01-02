@@ -3,8 +3,8 @@ import os
 import time
 from pathlib import Path
 
-from electrumsv_node import electrumsv_node
-from electrumsv_node.electrumsv_node import call_any
+import electrumsv_node
+from electrumsv_node import call_any
 
 logging.basicConfig(
     format="%(asctime)s %(levelname)s %(message)s",
@@ -69,11 +69,9 @@ def test_multiple_instances():
 def test_call_any(method_name='help', *args):
     try:
         electrumsv_node.start()
-        time.sleep(5)
         result = call_any(method_name, *args, rpcport=18332, rpchost="127.0.0.1", rpcuser="rpcuser",
             rpcpassword="rpcpassword")
-        print(result.json()['result'])
-        time.sleep(5)
+        logger.debug(result.json()['result'])
         electrumsv_node.stop(rpcport=18332, rpchost="127.0.0.1", rpcuser="rpcuser",
             rpcpassword="rpcpassword")
         assert True
@@ -82,5 +80,5 @@ def test_call_any(method_name='help', *args):
 
 
 # test_call_any("generate", 10)
-# test_call_any("help")
+test_call_any("getinfo")
 # test_start_stop_reset()

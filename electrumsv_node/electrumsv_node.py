@@ -150,7 +150,7 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
     Can only start a node from localhost / the same machine - remote access is only
     supported for RPC commands - namely in the case of dockerization
     """
-    logger.debug("starting bitcoin node")
+    logger.info("starting bitcoin node")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
         zmq_port, print_to_console, extra_params)
     if is_node_running(rpcport, "127.0.0.1", rpcuser, rpcpassword):
@@ -159,7 +159,7 @@ def start(config_path: Optional[str]=None, data_path: Optional[str]=None,
         return pid
 
     # sometimes the node is still shutting down from a previous run
-    logger.debug("starting the bitcoin node failed - retrying...")
+    logger.warning("starting the bitcoin node failed - retrying...")
     pid = _start(config_path, data_path, rpcport, rpcuser, rpcpassword, network, p2p_port,
         zmq_port, print_to_console, extra_params)
     if is_node_running(rpcport, "127.0.0.1", rpcuser, rpcpassword):
@@ -178,7 +178,7 @@ def stop(first_attempt: bool=True, rpcport: int=18332, rpchost: str="127.0.0.1",
         result = requests.post(f"http://{rpcuser}:{rpcpassword}@{rpchost}:{rpcport}", data=payload,
             timeout=0.5)
         result.raise_for_status()
-        logger.debug("bitcoin daemon stopped.")
+        logger.info("bitcoin daemon stopped.")
     except Exception as e:
         if first_attempt:
             logger.error(str(e) + " Retrying after 1 second in case it is still waking up...")
