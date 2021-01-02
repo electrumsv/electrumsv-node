@@ -59,6 +59,17 @@ echo "/opt/boost_1_70/lib" > /etc/ld.so.conf.d/boost_1_70.conf
 ldconfig
 cd ../../
 
+mkdir libevent
+cd libevent
+wget --no-verbose https://github.com/libevent/libevent/releases/download/release-2.1.12-stable/libevent-2.1.12-stable.tar.gz
+tar -xzf libevent-2.1.12-stable.tar.gz
+cd libevent-2.1.12-stable
+./configure --prefix=/opt/libevent_2_1 --disable-shared
+make install
+libtool --finish /opt/libevent_2_1
+ldconfig
+cd ../../
+
 git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
 pushd $1
 ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
