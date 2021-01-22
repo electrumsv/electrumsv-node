@@ -181,14 +181,13 @@ def stop(first_attempt: bool=True, rpcport: int=18332, rpchost: str="127.0.0.1",
         logger.info("bitcoin daemon stopped.")
     except Exception as e:
         if first_attempt:
-            logger.error(str(e) + " Retrying after 1 second in case it is still waking up...")
+            logger.debug(str(e) + " Retrying after 1 second in case it is still waking up...")
             time.sleep(1)
             stop(first_attempt=False, rpcport=rpcport, rpchost=rpchost, rpcuser=rpcuser,
                 rpcpassword=rpcpassword)
         else:
-            logger.error(str(e))
+            logger.debug(str(e))
             return
-        logger.error(str(e))
 
 
 def is_node_stopped(rpcport: int=18332, rpchost: str="127.0.0.1", rpcuser: str="rpcuser",

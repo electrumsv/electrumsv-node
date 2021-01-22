@@ -14,12 +14,12 @@ from setuptools.dist import Distribution
 # CI to produce binary wheels on Windows, Linux and MacOS.
 
 """
-1) py -3.7 ./setup.py build bdist_wheel
+1) py -3.8 ./setup.py build bdist_wheel
 2) delete wheel from dist/
 3) populate dist/ with wheels from azure pipelines
 4) twine upload dist/*
 
-py -3.7 -m pip install --force --no-cache electrumsv_node
+py -3.8 -m pip install --force --no-cache electrumsv_node
 """
 
 
