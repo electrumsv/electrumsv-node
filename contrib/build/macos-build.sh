@@ -4,7 +4,7 @@
 
 brew install automake berkeley-db libtool boost openssl pkg-config libevent
 brew install zeromq  # needed for --enable-zmq to work
-git clone --branch bugfix/cmake-windows-build-1.0.6 --depth=1 https://github.com/electrumsv/bitcoin-sv $1
+git clone --branch bugfix/cmake-windows-build-1.0.7 --depth=1 https://github.com/electrumsv/bitcoin-sv $1
 export MACOSX_DEPLOYMENT_TARGET=10.15
 pushd $1
 ./autogen.sh
