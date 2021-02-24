@@ -3,26 +3,18 @@
 import os
 import shutil
 import subprocess
-import sys
+from pathlib import Path
 
-print(f"Copying compiled bitcoin binaries to electrumsv_node/bin/", flush=True)
+print(f"Copying official binaries to electrumsv_node/bin/", flush=True)
 
+target_names = ("bitcoind", "bitcoin-cli")
 
-def _resolve_bsv_build_path() -> str:
-    build_path = os.environ.get("BSV_BUILD_PATH")
-    if build_path is None:
-        build_path = "bitcoin-sv"
-    return build_path
-
-
-BSV_BUILD_PATH = _resolve_bsv_build_path()
-
-target_names = ("bitcoind", "bitcoin-seeder", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
-
-if not os.path.exists(BSV_BUILD_PATH):
-    sys.exit(f"Failed to locate the Bitcoin SV build directory: {BSV_BUILD_PATH}")
+subprocess.run(['wget https://download.bitcoinsv.io/bitcoinsv/1.0.7/bitcoin-sv-1.0.7-x86_64-linux-gnu.tar.gz'],
+    shell=True)
+subprocess.run(f"tar xvf bitcoin-sv-1.0.7-x86_64-linux-gnu.tar.gz", shell=True)
+print(os.listdir())
 
 for target_name in target_names:
-    artifact_path = os.path.join(BSV_BUILD_PATH, "src", target_name)
-    subprocess.run(f"strip {artifact_path}", shell=True)
-    shutil.copy(artifact_path, "electrumsv_node/bin/")
+    file_path = Path(os.getcwd()).joinpath(f"bitcoin-sv-1.0.7/bin/{target_name}")
+    print(f"copying file: {file_path} to: {file_path}")
+    shutil.copy(file_path, "electrumsv_node/bin/")
