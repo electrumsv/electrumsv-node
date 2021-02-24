@@ -28,8 +28,15 @@ def main():
 
     wheel_path = None
     if sys.platform == 'linux':
+        print(os.getcwd())
+        print(os.listdir())
+
+        print(WHEELHOUSE_DIR)
+        os.chdir(WHEELHOUSE_DIR)
+        print(os.getcwd())
+        print(os.listdir())
         wheel_path = WHEELHOUSE_DIR.joinpath(
-            f"electrumsv_node-{version}-{py_version}-manylinux2014_x86_64.whl")
+            f"electrumsv_node-{version}-{py_version}-linux_x86_64.whl")
     if sys.platform == 'darwin':
         wheel_path = WHEELHOUSE_DIR.joinpath(
             f"electrumsv_node-{version}-{py_version}-macosx_10_9_x86_64.whl")

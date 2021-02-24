@@ -1,7 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/electrumsv-node.svg)](https://badge.fury.io/py/electrumsv-node) 
 [![Build Status](https://dev.azure.com/electrumsv/ElectrumSV/_apis/build/status/electrumsv.electrumsv-node?branchName=master)](https://dev.azure.com/electrumsv/ElectrumSV/_build/latest?definitionId=5&branchName=master)
 [![Platforms](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
-[![Node Version](https://img.shields.io/badge/node_version-v1.0.6-brown)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
+[![Node Version](https://img.shields.io/badge/node_version-v1.0.7-brown)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
 
 # ElectrumSV-Node
 
@@ -66,7 +66,8 @@ Console output will look something like this (with custom data directory):
     2021-01-03 11-50-29 DEBUG polling bitcoin node...
     2021-01-03 11-50-31 DEBUG polling bitcoin node...
     2021-01-03 11-50-32 INFO bitcoin node online
-    2021-01-03 11-50-32 DEBUG {'result': {'version': 101000600, 'protocolversion': 70015, 'walletversion': 160300, 'balance': 0.0, 'blocks': 0, 'timeoffset': 0, 'connections': 0, 'proxy': '', 'difficulty': 4.656542373906925e-10, 'testnet': False, 'stn': False, 'keypoololdest': 1609627830, 'keypoolsize': 2000, 'paytxfee': 0.0, 'relayfee': 2.5e-06, 'errors': 'This is a pre-release or beta test build - use at your own risk - do not use for mining or merchant applications', 'maxblocksize': 10000000000, 'maxminedblocksize': 128000000, 'maxstackmemoryusagepolicy': 100000000, 'maxstackmemoryusageconsensus': 9223372036854775807}, 'error': None, 'id': 0}
+    2021-01-03 11-50-32 DEBUG {'result': {'version': 101000700, 'protocolversion': 70015
+    , 'walletversion': 160300, 'balance': 0.0, 'blocks': 0, 'timeoffset': 0, 'connections': 0, 'proxy': '', 'difficulty': 4.656542373906925e-10, 'testnet': False, 'stn': False, 'keypoololdest': 1609627830, 'keypoolsize': 2000, 'paytxfee': 0.0, 'relayfee': 2.5e-06, 'errors': 'This is a pre-release or beta test build - use at your own risk - do not use for mining or merchant applications', 'maxblocksize': 10000000000, 'maxminedblocksize': 128000000, 'maxstackmemoryusagepolicy': 100000000, 'maxstackmemoryusageconsensus': 9223372036854775807}, 'error': None, 'id': 0}
     2021-01-03 11-50-32 DEBUG stopping bitcoin node
     2021-01-03 11-50-32 INFO bitcoin daemon stopped.
     2021-01-03 11-50-32 DEBUG resetting state of RegTest bitcoin daemon...

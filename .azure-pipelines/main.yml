@@ -16,50 +16,24 @@ trigger:
   paths:
     exclude: [ 'README.md' ]
 
-resources:
-  containers:
-  - container: node_builder
-    image: electrumsvsdk/centos7-bitcoin-builder:latest
-
 jobs:
 - job: Linux
   pool: {vmImage: 'ubuntu-latest'}
-  variables:
-    BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-centos7'
   timeoutInMinutes: 120
   steps:
-    # Make libevent and other dependencies as needed from bitcoin-sv/depends directory
-    # Makes all dependencies for subsequent compilation. Can link to them via:
-    # ./configure --prefix=$(BSV_BUILD_PATH)/depends/x86_64-pc-linux-gnu
-    - bash: |
-        set -e
-        git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $(BSV_BUILD_PATH)
-        cd $(BSV_BUILD_PATH)
-        source /opt/rh/devtoolset-8/enable
-        ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
-        cd $(BSV_BUILD_PATH)/depends
-        ls -a
-        make
-        cd ../../
-
-        pushd $(BSV_BUILD_PATH)
-        ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
-        ./configure --prefix=$(BSV_BUILD_PATH)/depends/x86_64-pc-linux-gnu --disable-tests --disable-bench --enable-zmq
-        make
-        popd
-      target: node_builder
-      displayName: Build Bitcoin SV Node
+    # On linux we pull the official binaries instead of painstakingly compiling via an ancient
+    # CentOS docker image required for compatibility with manylinux wheel builds
     - task: UsePythonVersion@0
       inputs:
         versionSpec: 3.7
     - bash: |
-        ls -a $(BSV_BUILD_PATH)/src
         python3 ./contrib/build/linux/transfer_binaries.py
         export "CIBW_BUILD=cp37-manylinux_x86_64 cp38-manylinux_x86_64 cp39-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=3
+        export CIBW_REPAIR_WHEEL_COMMAND=""
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==1.6.4
+        pip3 install cibuildwheel==1.10.0
         cibuildwheel --output-dir wheelhouse .
       target: host
       displayName: Build Manylinux Wheel / Python packaging
@@ -80,10 +54,12 @@ jobs:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
   steps:
     - script: |
+        brew install berkeley-db@4
+    - script: |
         export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64 cp39-macosx_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==1.6.4
+        pip3 install cibuildwheel==1.10.0
         cibuildwheel --output-dir wheelhouse .
       displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1

@@ -80,5 +80,5 @@ def test_call_any(method_name='help', *args):
 
 
 # test_call_any("generate", 10)
-test_call_any("getinfo")
+# test_call_any("getinfo")
 # test_start_stop_reset()
