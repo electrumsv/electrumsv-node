@@ -11,6 +11,10 @@ target_names = ("bitcoind", "bitcoin-cli")
 
 subprocess.run(['wget https://download.bitcoinsv.io/bitcoinsv/1.0.7/bitcoin-sv-1.0.7-x86_64-linux-gnu.tar.gz'],
     shell=True)
+
+# archive_dir = Path(os.getcwd()).joinpath(f"bitcoin-sv-1.0.7-x86_64-linux-gnu.tar.gz")
+# shutil.copy(archive_dir, "electrumsv_node/bin/")
+
 subprocess.run(f"tar xvf bitcoin-sv-1.0.7-x86_64-linux-gnu.tar.gz", shell=True)
 print(os.listdir())
 
