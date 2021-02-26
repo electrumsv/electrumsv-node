@@ -54,7 +54,7 @@ jobs:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
   steps:
     - script: |
-        brew install berkeley-db
+        brew install berkeley-db@4
     - script: |
         export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64 cp39-macosx_x86_64"
         export CIBW_BUILD_VERBOSITY=1
