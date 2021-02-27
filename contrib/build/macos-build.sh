@@ -6,7 +6,6 @@
 
 brew install automake libtool boost openssl pkg-config libevent
 brew install zeromq  # needed for --enable-zmq to work
-brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/master/Formula/berkeley-db.rb --without-java
 brew link berkeley-db4 --force
 export PATH="/usr/local/opt/berkeley-db@4/bin:$PATH"
 export LDFLAGS="-L/usr/local/opt/berkeley-db@4/lib"
