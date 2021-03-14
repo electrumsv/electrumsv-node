@@ -33,7 +33,7 @@ jobs:
         export CIBW_REPAIR_WHEEL_COMMAND=""
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==1.10.0
+        pip3 install cibuildwheel==1.6.4
         cibuildwheel --output-dir wheelhouse .
       target: host
       displayName: Build Manylinux Wheel / Python packaging
@@ -59,7 +59,7 @@ jobs:
         export "CIBW_BUILD=cp37-macosx_x86_64 cp38-macosx_x86_64 cp39-macosx_x86_64"
         export CIBW_BUILD_VERBOSITY=1
         python3 -m pip install --upgrade pip
-        pip3 install cibuildwheel==1.10.0
+        pip3 install cibuildwheel==1.6.4
         cibuildwheel --output-dir wheelhouse .
       displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
