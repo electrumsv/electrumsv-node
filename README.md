@@ -1,7 +1,7 @@
-[![PyPI version](https://badge.fury.io/py/electrumsv-node.svg)](https://badge.fury.io/py/electrumsv-node) 
+[![PyPI version](https://badge.fury.io/py/electrumsv-node.svg)](https://badge.fury.io/py/electrumsv-node)
 [![Build Status](https://dev.azure.com/electrumsv/ElectrumSV/_apis/build/status/electrumsv.electrumsv-node?branchName=master)](https://dev.azure.com/electrumsv/ElectrumSV/_build/latest?definitionId=5&branchName=master)
 [![Platforms](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
-[![Node Version](https://img.shields.io/badge/node_version-v1.0.6-brown)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
+[![Node Version](https://img.shields.io/badge/node_version-v1.0.8-brown)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
 
 # ElectrumSV-Node
 
@@ -14,7 +14,7 @@ These packages and the executables within them, are only intended for running no
 as Regtest blockchains. If we had the ability to do so, we would prevent them from running as any
 other blockchain. Do not bother us with your questions or problems related to non-Regtest usage.
 
-* You must be using 64-bit Python 3.7 or 3.8.
+* You must be using 64-bit Python 3.7, 3.8 or 3.9.
 * You must be using Windows, MacOS or Linux.
 * You must have the latest version of the `pip` package.
 
@@ -30,7 +30,7 @@ To use it:
 
     import logging
     import electrumsv_node
-    
+
     # Set logging level to debug mode to see logging information (Optional)
     logging.basicConfig(
         format="%(asctime)s %(levelname)s %(message)s",
@@ -38,9 +38,9 @@ To use it:
         datefmt="%Y-%m-%d %H-%M-%S",
     )
     logger = logging.getLogger("testing")
-    
+
     electrumsv_node.start()
-    
+
     # (Optional keyword arguments)
     # electrumsv_node.start(
     #     data_path=</your/custom/datadir/path>,
@@ -53,7 +53,7 @@ To use it:
     #     print_to_console=True,  # feeds logging to stdout
     #     extra_params=['-somearg1=var1', '-somearg2=var2']
     # )
-    
+
     result = electrumsv_node.call_any('getinfo')
     logger.debug(result.json())
     electrumsv_node.stop()

@@ -17,7 +17,7 @@ def _resolve_bsv_build_path() -> str:
 
 BSV_BUILD_PATH = _resolve_bsv_build_path()
 
-target_names = ("bitcoind", "bitcoin-seeder", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
+target_names = ("bitcoind", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
 
 if not os.path.exists(BSV_BUILD_PATH):
     sys.exit(f"Failed to locate the Bitcoin SV build directory: {BSV_BUILD_PATH}")

@@ -14,7 +14,7 @@ trigger:
     - releases/*
     - features/*
   paths:
-    exclude: [ 'README.md' ]
+    exclude: [ 'README.md', 'docs' ]
 
 resources:
   containers:
@@ -33,7 +33,7 @@ jobs:
     # ./configure --prefix=$(BSV_BUILD_PATH)/depends/x86_64-pc-linux-gnu
     - bash: |
         set -e
-        git clone --branch v1.0.6 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $(BSV_BUILD_PATH)
+        git clone --branch v1.0.8 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $(BSV_BUILD_PATH)
         cd $(BSV_BUILD_PATH)
         source /opt/rh/devtoolset-8/enable
         ACLOCAL_PATH=/usr/share/aclocal ./autogen.sh
@@ -65,7 +65,7 @@ jobs:
       displayName: Build Manylinux Wheel / Python packaging
     - task: PublishBuildArtifacts@1
       inputs:
-        artifactName: 'Linux'
+        artifactName: 'Python packages - Linux'
         pathtoPublish: 'wheelhouse'
     - script: |
         python3 -m pip install pytest pytest-cov wheel --user
@@ -88,7 +88,7 @@ jobs:
       displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
       inputs:
-        artifactName: 'MacOS'
+        artifactName: 'Python packages - MacOS'
         pathtoPublish: 'wheelhouse'
     - script: |
         python3 -m pip install pytest pytest-cov wheel --user
@@ -96,11 +96,34 @@ jobs:
         cd tests
         python3 -m pytest -v -v -v .
       displayName: Install from wheel and run tests
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: $(BSV_BUILD_PATH)/src
+        contents: |
+          bitcoind
+          bitcoin-cli
+          bitcoin-tx
+          bitcoin-miner
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+        OverWrite: true
+    - script: |
+        cd $(Build.ArtifactStagingDirectory)
+        shasum -a 256 * > build-hashes.txt
+      enabled: true
+      continueOnError: false
+      failOnStderr: false
+      displayName: 'Collect build artifacts'
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'Binaries - MacOS'
+        targetPath: $(Build.ArtifactStagingDirectory)
 
 - job: Windows
   pool: {vmImage: 'windows-latest'}
   variables:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)\bitcoin-sv-windows'
+    BSV_BUILD_TYPE: 'Release'
     vcpkgVersion: 2020.06.15
     vcpkgInstallParamPath: '$(Build.SourcesDirectory)\.azure-pipelines\vcpkg'
     vcpkgBinariesPath: 'C:\Users\VssAdministrator\AppData\Local\vcpkg\archives'
@@ -118,17 +141,36 @@ jobs:
         key: $(vcpkgInstallParamPath)\$(vcpkg.arch)-windows-static.txt | "$(vcpkg.arch)" | "$(vcpkgVersion)" | "$(Agent.OS)"
         path: '$(vcpkgBinariesPath)'
     - script: |
-        set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64 cp39-win_amd64 cp37-win32 cp38-win32 cp39-win32"
+        set "CIBW_BUILD=cp37-win_amd64 cp38-win_amd64 cp39-win_amd64"
         set CIBW_BUILD_VERBOSITY=1
         set CIBW_ENVIRONMENT=vcpkg.arch=$(vcpkg.arch)
         py -3 -m pip install --upgrade pip
         py -3 -m pip install cibuildwheel==1.6.4
         py -3 -m cibuildwheel --output-dir wheelhouse .
       displayName: Build Bitcoin SV (autotools) / Python packaging
+      continueOnError: false
     - task: PublishBuildArtifacts@1
       inputs:
-        artifactName: 'Windows'
+        artifactName: 'Python packages - Windows'
         pathtoPublish: 'wheelhouse'
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: $(BSV_BUILD_PATH)\build\src\$(BSV_BUILD_TYPE)
+        contents: |
+          *.exe
+          *.pdb
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+        OverWrite: true
+    - bash: |
+        sha256sum * > build-hashes.txt
+      workingDirectory: $(Build.ArtifactStagingDirectory)
+      failOnStderr: true
+      displayName: 'Checksum build artifacts'
+    - task: PublishPipelineArtifact@0
+      inputs:
+        artifactName: 'Binaries - Windows'
+        targetPath: $(Build.ArtifactStagingDirectory)
     - script: |
         py -3 -m pip install pytest pytest-cov wheel --user
         py -3 ./contrib/install_built_wheel.py wheelhouse

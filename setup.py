@@ -29,7 +29,7 @@ with open('electrumsv_node/__init__.py', 'r') as f:
             version = line.strip().split('= ')[1].strip("'")
             break
 
-target_names = ("bitcoind", "bitcoin-seeder", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
+target_names = ("bitcoind", "bitcoin-cli", "bitcoin-tx", "bitcoin-miner")
 
 
 def _resolve_bsv_build_path() -> str:

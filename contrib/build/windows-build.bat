@@ -27,7 +27,7 @@ if "%vcpkg.arch%" EQU "x86" (
 
 echo on
 set VCPKG_ROOT=%VCPKG_INSTALLATION_ROOT%
-set BITCOIN_SV_REVISION=bugfix/cmake-windows-build-1.0.6
+set BITCOIN_SV_REVISION=bugfix/cmake-windows-build-1.0.8
 set BITCOIN_SV_REPO=https://github.com/electrumsv/bitcoin-sv
 
 git clone --depth=1 --branch %BITCOIN_SV_REVISION% %BITCOIN_SV_REPO% %1
@@ -45,11 +45,15 @@ REM warning C4834: discarding return value of function with 'nodiscard' attribut
 REM warning C4996: 'fopen': This function or variable may be unsafe. Consider using fopen_s instead.
 
 REM -DBUILD_BITCOIN_WALLET=OFF
+REM These change the build from MT_StaticRelease to MD_DynamicRelease, and result in linker errors with Boost and more. But this is how we would generate pdbs.
+REM -DCMAKE_CXX_FLAGS_RELEASE="/Zi" -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/DEBUG /OPT:REF /OPT:ICF"
 
 %VCPKG_ROOT%\vcpkg.exe install "@%vcpkgInstallParamPath%\%vcpkg.arch%-windows-static.txt"
 REM https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2016%202019.html
-cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DBUILD_BITCOIN_BENCH=OFF -DBUILD_BITCOIN_ZMQ=ON -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
-cat BitcoinSV.sln
+cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_VERSION="10.0.19041.0" -DBUILD_BITCOIN_BENCH=OFF -DBUILD_BITCOIN_ZMQ=ON -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
+if not exist "BitcoinSV.sln" (
+  exit /b 1
+)
 msbuild BitcoinSV.sln /p:Configuration=Release /p:Platform="%VCPKG_CMAKE_ARCH%" /nowarn:"C4146,C4244,C4309,C4267,C4805,C4834,C4996"
 
 popd
