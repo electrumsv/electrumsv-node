@@ -10,3 +10,4 @@ tests/datadir1/*
 tests/datadir2/*
 /electrumsv_node.libs/*
 bitcoin-sv/
+docs/_build
