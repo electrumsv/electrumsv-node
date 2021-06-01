@@ -40,7 +40,7 @@ __ https://electrumsv.readthedocs.io/en/latest/getting-started/verifying-downloa
    :alt: Checking the digital signature for ElectrumSV as you would for any Windows node binary.
    :align: center
 
-   Checking the digital signature for ElectrumSV as you would for any Windows node binary.
+   Checking the digital signature as you would for any signed Windows node binary.
 
 MacOS
 ~~~~~
