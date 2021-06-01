@@ -14,7 +14,7 @@ trigger:
     - releases/*
     - features/*
   paths:
-    exclude: [ 'README.md', 'docs' ]
+    exclude: [ 'README.md', 'docs', 'build-hashes.txt' ]
 
 resources:
   containers:
