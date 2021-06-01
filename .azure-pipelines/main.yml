@@ -98,6 +98,22 @@ jobs:
       displayName: Install from wheel and run tests
     - task: CopyFiles@2
       inputs:
+        sourceFolder: contrib/archive-extras
+        contents: |
+          README.txt
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+        OverWrite: true
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: $(BSV_BUILD_PATH)
+        contents: |
+          LICENSE
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+        OverWrite: true
+    - task: CopyFiles@2
+      inputs:
         sourceFolder: $(BSV_BUILD_PATH)/src
         contents: |
           bitcoind
@@ -147,12 +163,28 @@ jobs:
         py -3 -m pip install --upgrade pip
         py -3 -m pip install cibuildwheel==1.6.4
         py -3 -m cibuildwheel --output-dir wheelhouse .
-      displayName: Build Bitcoin SV (autotools) / Python packaging
+      displayName: Build Bitcoin SV (msvc/cmake) / Python packaging
       continueOnError: false
     - task: PublishBuildArtifacts@1
       inputs:
         artifactName: 'Python packages - Windows'
         pathtoPublish: 'wheelhouse'
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: contrib\archive-extras
+        contents: |
+          README.txt
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+        OverWrite: true
+    - task: CopyFiles@2
+      inputs:
+        sourceFolder: $(BSV_BUILD_PATH)\build
+        contents: |
+          LICENSE
+        targetFolder: $(Build.ArtifactStagingDirectory)
+        flattenFolders: true
+        OverWrite: true
     - task: CopyFiles@2
       inputs:
         sourceFolder: $(BSV_BUILD_PATH)\build\src\$(BSV_BUILD_TYPE)
