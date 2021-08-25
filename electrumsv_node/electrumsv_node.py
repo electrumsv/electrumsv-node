@@ -134,7 +134,7 @@ def _start(config_path: Optional[str]=None, data_path: Optional[str]=None,
 
 def is_node_running(rpcport: int=18332, rpchost: str="127.0.0.1", rpcuser: str="rpcuser",
         rpcpassword: str="rpcpassword"):
-    for timeout in [1] * 5:
+    for timeout in [1] * 8:
         logger.debug("polling bitcoin node...")
         if is_running(rpcport, rpchost, rpcuser, rpcpassword):
             return True
