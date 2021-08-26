@@ -97,7 +97,8 @@ def shell_command(config_path: Optional[str] = None, data_path: Optional[str] = 
         f"-zmqpubinvalidtx=tcp://127.0.0.1:{zmq_port}",
         f"-zmqpubdiscardedfrommempool=tcp://127.0.0.1:{zmq_port}",
         f"-zmqpubremovedfrommempoolblock=tcp://127.0.0.1:{zmq_port}",
-        f"-invalidtxsink=ZMQ"
+        f"-invalidtxsink=ZMQ",
+        f"-preload=1"
     ])
     if extra_params is not None:
         split_command.extend(extra_params)
