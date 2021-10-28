@@ -7,7 +7,7 @@ to acquire it's dependencies. The Python package repository enforces strict comp
 rules on uploaded binary packages like our node packages, and this ensures that those packages
 will run on as wide a range of computers that use the architectures we support.
 
-As of `electrumsv-node` version 0.0.23 we support the following platforms:
+As of `electrumsv-node` version 0.0.24 we support the following platforms:
 
 * 64 bit Linux.
 * 64 bit MacOS (OS X 10.9 and above).
@@ -18,6 +18,7 @@ For the following versions of Python:
 * Python 3.7
 * Python 3.8
 * Python 3.9
+* Python 3.10
 
 Installing the package
 ----------------------

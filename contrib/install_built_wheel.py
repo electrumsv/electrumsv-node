@@ -25,11 +25,13 @@ def main():
         py_version = 'cp38-cp38'
     elif sys.version_info.major == 3 and sys.version_info.minor == 9:
         py_version = 'cp39-cp39'
+    elif sys.version_info.major == 3 and sys.version_info.minor == 10:
+        py_version = 'cp310-cp310'
 
     wheel_path = None
-    if sys.platform == 'linux':
+    if sys.platform == 'linux': # electrumsv_node-0.0.23-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
         wheel_path = WHEELHOUSE_DIR.joinpath(
-            f"electrumsv_node-{version}-{py_version}-manylinux2014_x86_64.whl")
+            f"electrumsv_node-{version}-{py_version}-manylinux_2_17_x86_64.manylinux2014_x86_64.whl")
     if sys.platform == 'darwin':
         wheel_path = WHEELHOUSE_DIR.joinpath(
             f"electrumsv_node-{version}-{py_version}-macosx_10_9_x86_64.whl")

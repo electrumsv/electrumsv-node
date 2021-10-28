@@ -9,6 +9,7 @@ boost-random
 boost-assign
 boost-uuid
 boost-multi-index
+boost-math
 libevent
 openssl
 zeromq

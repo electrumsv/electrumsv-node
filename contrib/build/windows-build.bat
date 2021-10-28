@@ -27,7 +27,7 @@ if "%vcpkg.arch%" EQU "x86" (
 
 echo on
 set VCPKG_ROOT=%VCPKG_INSTALLATION_ROOT%
-set BITCOIN_SV_REVISION=bugfix/cmake-windows-build-1.0.8
+set BITCOIN_SV_REVISION=bugfix/cmake-windows-build-1.0.9
 set BITCOIN_SV_REPO=https://github.com/electrumsv/bitcoin-sv
 
 git clone --depth=1 --branch %BITCOIN_SV_REVISION% %BITCOIN_SV_REPO% %1
@@ -50,7 +50,10 @@ REM -DCMAKE_CXX_FLAGS_RELEASE="/Zi" -DCMAKE_SHARED_LINKER_FLAGS_RELEASE="/DEBUG 
 
 %VCPKG_ROOT%\vcpkg.exe install "@%vcpkgInstallParamPath%\%vcpkg.arch%-windows-static.txt"
 REM https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2016%202019.html
-cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_VERSION="10.0.19041.0" -DBUILD_BITCOIN_BENCH=OFF -DBUILD_BITCOIN_ZMQ=ON -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF ..
+cmake --version
+REM There's some problem with cmake where it does not stick to the given Windows SDK version when finding SHLWAPI, and instead looks at the latest (Windows 11) SDK path to find those.
+REM We override those explicitly by forcing explicit selection of the correct files.
+cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -DBUILD_BITCOIN_BENCH=OFF -DBUILD_BITCOIN_ZMQ=ON -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF -DSHLWAPI_INCLUDE_DIR="C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um" -DSHLWAPI_LIBRARY="C:\Program Files (x86)\Windows Kits\10\Lib\10.0.18362.0\um\x64\ShLwApi.Lib" ..
 if not exist "BitcoinSV.sln" (
   exit /b 1
 )

@@ -14,7 +14,7 @@ These packages and the executables within them, are only intended for running no
 as Regtest blockchains. If we had the ability to do so, we would prevent them from running as any
 other blockchain. Do not bother us with your questions or problems related to non-Regtest usage.
 
-* You must be using 64-bit Python 3.7, 3.8 or 3.9.
+* You must be using 64-bit Python 3.7, 3.8, 3.9 or 3.10.
 * You must be using Windows, MacOS or Linux.
 * You must have the latest version of the `pip` package.
 
