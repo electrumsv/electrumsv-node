@@ -2,7 +2,13 @@
 
 # $1 - path to checkout and build Bitcoin SV in.
 
-brew install automake berkeley-db libtool boost openssl pkg-config libevent
+# Fix for:
+#   `configure: error: libdb_cxx missing, Bitcoin SV requires this library for wallet`
+#   `functionality (--disable-wallet to disable wallet functionality)`
+brew install berkeley-db4
+brew link berkeley-db4 --force
+
+brew install automake libtool boost openssl pkg-config libevent
 brew install zeromq  # needed for --enable-zmq to work
 git clone --branch v1.0.11 --depth=1 https://github.com/bitcoin-sv/bitcoin-sv.git $1
 export MACOSX_DEPLOYMENT_TARGET=10.15
