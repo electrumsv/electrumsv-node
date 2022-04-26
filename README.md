@@ -1,7 +1,7 @@
 [![PyPI version](https://badge.fury.io/py/electrumsv-node.svg)](https://badge.fury.io/py/electrumsv-node)
 [![Build Status](https://dev.azure.com/electrumsv/ElectrumSV/_apis/build/status/electrumsv.electrumsv-node?branchName=master)](https://dev.azure.com/electrumsv/ElectrumSV/_build/latest?definitionId=5&branchName=master)
 [![Platforms](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
-[![Node Version](https://img.shields.io/badge/node_version-v1.0.8-brown)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
+[![Node Version](https://img.shields.io/badge/node_version-v1.0.11-brown)](https://img.shields.io/badge/platforms-linux%20%7C%20windows%20%7C%20macos-blue)
 
 # ElectrumSV-Node
 
