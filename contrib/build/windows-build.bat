@@ -27,7 +27,7 @@ if "%vcpkg.arch%" EQU "x86" (
 
 echo on
 set VCPKG_ROOT=%VCPKG_INSTALLATION_ROOT%
-set BITCOIN_SV_REVISION=bugfix/cmake-windows-build-1.0.9
+set BITCOIN_SV_REVISION=bugfix/cmake-windows-build-1.0.11
 set BITCOIN_SV_REPO=https://github.com/electrumsv/bitcoin-sv
 
 git clone --depth=1 --branch %BITCOIN_SV_REVISION% %BITCOIN_SV_REPO% %1
