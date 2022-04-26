@@ -53,7 +53,7 @@ REM https://cmake.org/cmake/help/latest/generator/Visual%20Studio%2016%202019.ht
 cmake --version
 REM There's some problem with cmake where it does not stick to the given Windows SDK version when finding SHLWAPI, and instead looks at the latest (Windows 11) SDK path to find those.
 REM We override those explicitly by forcing explicit selection of the correct files.
-cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 16 2019" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -DBUILD_BITCOIN_BENCH=OFF -DBUILD_BITCOIN_ZMQ=ON -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF -DSHLWAPI_INCLUDE_DIR="C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um" -DSHLWAPI_LIBRARY="C:\Program Files (x86)\Windows Kits\10\Lib\10.0.18362.0\um\x64\ShLwApi.Lib" ..
+cmake -DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake  -G "Visual Studio 17 2022" -A %VCPKG_CMAKE_ARCH% -DVCPKG_TARGET_TRIPLET=%vcpkg.arch%-windows-static -DCMAKE_BUILD_TYPE=Release -DCMAKE_SYSTEM_VERSION="10.0.18362.0" -DBUILD_BITCOIN_BENCH=OFF -DBUILD_BITCOIN_ZMQ=ON -DUNIVALUE_BUILD_TESTS=OFF -DLEVELDB_BUILD_TESTS=OFF -DSHLWAPI_INCLUDE_DIR="C:\Program Files (x86)\Windows Kits\10\Include\10.0.18362.0\um" -DSHLWAPI_LIBRARY="C:\Program Files (x86)\Windows Kits\10\Lib\10.0.18362.0\um\x64\ShLwApi.Lib" ..
 if not exist "BitcoinSV.sln" (
   exit /b 1
 )
