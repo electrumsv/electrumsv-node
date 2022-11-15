@@ -101,7 +101,6 @@ def shell_command(config_path: Optional[str] = None, data_path: Optional[str] = 
         f"-preload=1",
         f"-rejectmempoolrequest=0",
         f"-whitelist=127.0.0.1",
-        f"-debug=1"
     ])
     if extra_params is not None:
         split_command.extend(extra_params)
