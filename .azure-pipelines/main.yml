@@ -203,8 +203,8 @@ jobs:
         artifactName: 'Binaries - Windows'
         targetPath: $(Build.ArtifactStagingDirectory)
     - script: |
-        py -3 -m pip install pytest pytest-cov wheel --user
-        py -3 ./contrib/install_built_wheel.py wheelhouse
+        py -3.10 -m pip install pytest pytest-cov wheel --user
+        py -3.10 ./contrib/install_built_wheel.py wheelhouse
         cd tests
-        py -3 -m pytest -v -v -v .
+        py -3.10 -m pytest -v -v -v .
       displayName: Install from wheel and run tests
