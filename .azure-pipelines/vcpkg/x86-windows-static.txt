@@ -1,5 +1,6 @@
 --triplet
 x86-windows-static
+boost-asio
 boost-filesystem
 boost-signals2
 boost-test
