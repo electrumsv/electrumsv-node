@@ -19,14 +19,14 @@ def main():
                 break
 
     py_version = None
-    if sys.version_info.major == 3 and sys.version_info.minor == 7:
-        py_version = 'cp37-cp37m'
-    elif sys.version_info.major == 3 and sys.version_info.minor == 8:
+    if sys.version_info.major == 3 and sys.version_info.minor == 8:
         py_version = 'cp38-cp38'
     elif sys.version_info.major == 3 and sys.version_info.minor == 9:
         py_version = 'cp39-cp39'
     elif sys.version_info.major == 3 and sys.version_info.minor == 10:
         py_version = 'cp310-cp310'
+    elif sys.version_info.major == 3 and sys.version_info.minor == 11:
+        py_version = 'cp311-cp311'
 
     wheel_path = None
     if sys.platform == 'linux': # electrumsv_node-0.0.23-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl
@@ -36,13 +36,8 @@ def main():
         wheel_path = WHEELHOUSE_DIR.joinpath(
             f"electrumsv_node-{version}-{py_version}-macosx_10_9_x86_64.whl")
     if sys.platform == 'win32':
-        is_64bits = sys.maxsize > 2 ** 32
-        if is_64bits:
-            wheel_path = WHEELHOUSE_DIR.joinpath(
-                f"electrumsv_node-{version}-{py_version}-win_amd64.whl")
-        else:
-            wheel_path = WHEELHOUSE_DIR.joinpath(
-                f"electrumsv_node-{version}-{py_version}-win32.whl")
+        wheel_path = WHEELHOUSE_DIR.joinpath(
+            f"electrumsv_node-{version}-{py_version}-win_amd64.whl")
 
     subprocess.run(f"{sys.executable} -m pip install --force --no-cache {str(wheel_path)} --user",
                    shell=True, check=True)
