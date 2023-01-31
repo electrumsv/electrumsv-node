@@ -55,7 +55,7 @@ jobs:
     - bash: |
         ls -a $(BSV_BUILD_PATH)/src
         python3.10 ./contrib/build/linux/transfer_binaries.py
-        export "CIBW_BUILD=cp38-manylinux_x86_64 cp39-manylinux_x86_64 cp310-manylinux_x86_64 cp311-manylinux_x86_64"
+        export "CIBW_BUILD=cp310-manylinux_x86_64"
         export CIBW_BUILD_VERBOSITY=3
         export CIBW_MANYLINUX_X86_64_IMAGE=manylinux2014
         python3.10 -m pip install --upgrade pip
@@ -71,7 +71,7 @@ jobs:
         python3.10 -m pip install pytest pytest-cov wheel --user
         python3.10 ./contrib/install_built_wheel.py wheelhouse
         cd tests
-        python3 -m pytest -v -v -v .
+        python3.10 -m pytest -v -v -v .
       displayName: Install from wheel and run tests
 
 - job: MacOS
@@ -80,10 +80,11 @@ jobs:
     BSV_BUILD_PATH: '$(Build.BinariesDirectory)/bitcoin-sv-macos'
   steps:
     - script: |
-        export "CIBW_BUILD=cp38-macosx_x86_64 cp39-macosx_x86_64 cp310-macosx_x86_64 cp311-macosx_x86_64"
+        export "CIBW_ARCHS_MACOS=x86_64 universal2 arm64"
+        export "CIBW_BUILD=cp310-macosx*"
         export CIBW_BUILD_VERBOSITY=1
         python3.10 -m pip install --upgrade pip
-        pip3.10 install cibuildwheel==2.11.2
+        pip3.10 install cibuildwheel==2.12.0
         cibuildwheel --output-dir wheelhouse .
       displayName: Build Bitcoin SV (autotools) / Python packaging
     - task: PublishBuildArtifacts@1
@@ -156,7 +157,7 @@ jobs:
         key: $(vcpkgInstallParamPath)\$(vcpkg.arch)-windows-static.txt | "$(vcpkg.arch)" | "$(vcpkgVersion)" | "$(Agent.OS)"
         path: '$(vcpkgBinariesPath)'
     - script: |
-        set "CIBW_BUILD=cp38-win_amd64 cp39-win_amd64 cp310-win_amd64 cp311-win_amd64"
+        set "CIBW_BUILD=cp310-win_amd64"
         set CIBW_BUILD_VERBOSITY=3
         set CIBW_ENVIRONMENT=vcpkg.arch=$(vcpkg.arch)
         py -3.10 -m pip install --upgrade pip
